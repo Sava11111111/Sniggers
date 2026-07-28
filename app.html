@@ -77,6 +77,7 @@
         .add-friend-input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; background: var(--hover); color: var(--text); }
         .add-friend-btn { width: 100%; padding: 10px; background: var(--gradient); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
         
+        /* Модальное окно создания канала */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
         .modal.show { display: flex; }
         .modal-content { background: var(--card); padding: 24px; border-radius: 16px; width: 90%; max-width: 400px; }
@@ -86,6 +87,83 @@
         .modal-buttons button { flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
         .btn-cancel { background: var(--hover); color: var(--text); }
         .btn-confirm { background: var(--gradient); color: white; }
+        
+        /* Модальное окно выхода - новое */
+        .logout-modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.7); 
+            z-index: 2000; 
+            align-items: center; 
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .logout-modal.show { display: flex; }
+        .logout-modal-content { 
+            background: var(--card); 
+            padding: 32px; 
+            border-radius: 20px; 
+            width: 90%; 
+            max-width: 350px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .logout-modal-content h3 { 
+            margin-bottom: 12px;
+            font-size: 20px;
+            color: var(--text);
+        }
+        .logout-modal-content p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+        .logout-modal-buttons { 
+            display: flex; 
+            gap: 12px;
+        }
+        .logout-modal-buttons button { 
+            flex: 1; 
+            padding: 12px; 
+            border-radius: 12px; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .logout-modal-buttons button:hover {
+            transform: translateY(-2px);
+        }
+        .btn-no { 
+            background: var(--hover); 
+            color: var(--text);
+        }
+        .btn-no:hover {
+            background: var(--border);
+        }
+        .btn-yes { 
+            background: #e74c3c; 
+            color: white;
+        }
+        .btn-yes:hover {
+            background: #c0392b;
+        }
     </style>
 </head>
 <body>
@@ -109,7 +187,7 @@
                 <div id="friendsList"></div>
             </div>
             <div class="sidebar-footer">
-                <button class="logout-btn" onclick="logout()">🚪 Выйти</button>
+                <button class="logout-btn" onclick="showLogoutModal()">🚪 Выйти</button>
             </div>
         </div>
         <div class="chat">
@@ -155,6 +233,8 @@
             </div>
         </div>
     </div>
+    
+    <!-- Модальное окно создания канала -->
     <div class="modal" id="modal">
         <div class="modal-content">
             <h3>Создать канал</h3>
@@ -162,6 +242,18 @@
             <div class="modal-buttons">
                 <button class="btn-cancel" onclick="hideModal()">Отмена</button>
                 <button class="btn-confirm" onclick="createChannel()">Создать</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно выхода -->
+    <div class="logout-modal" id="logoutModal">
+        <div class="logout-modal-content">
+            <h3>🚪 Выйти из аккаунта?</h3>
+            <p>Вы будете перенаправлены на страницу входа</p>
+            <div class="logout-modal-buttons">
+                <button class="btn-no" onclick="hideLogoutModal()">Нет, остаться</button>
+                <button class="btn-yes" onclick="confirmLogout()">Да, выйти</button>
             </div>
         </div>
     </div>
@@ -203,15 +295,12 @@
 
                 if (userDoc.exists()) {
                     const data = userDoc.data();
-                    // Если имя есть в базе, берем его. Иначе берем из auth или email
                     displayName = data.name || user.displayName || user.email.split('@')[0] || 'User';
                     
-                    // Если в базе имени нет, но оно есть в auth, обновим базу
                     if (!data.name && user.displayName) {
                         await updateDoc(doc(db, 'users', user.uid), { name: user.displayName });
                     }
                 } else {
-                    // Если документа нет, создаем его
                     displayName = user.displayName || user.email.split('@')[0] || 'User';
                     await setDoc(doc(db, 'users', user.uid), {
                         uid: user.uid,
@@ -223,22 +312,18 @@
                     });
                 }
 
-                // Обновляем интерфейс
                 document.getElementById('userName').textContent = displayName;
                 document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
                 
-                // Загружаем данные
                 const finalDoc = await getDoc(doc(db, 'users', user.uid));
                 const finalData = finalDoc.data();
                 loadChannels(finalData.channels || []);
                 loadFriends(finalData.friends || []);
                 
-                // Статус онлайн
                 await updateDoc(doc(db, 'users', user.uid), { status: 'online' });
 
             } catch (error) {
                 console.error("Ошибка загрузки данных:", error);
-                // Фолбэк на случай ошибки
                 const fallbackName = user.displayName || user.email.split('@')[0] || 'User';
                 document.getElementById('userName').textContent = fallbackName;
                 document.getElementById('userAvatar').textContent = fallbackName.charAt(0).toUpperCase();
@@ -368,12 +453,37 @@
             }
         };
 
+        // Модальное окно создания канала
         window.showModal = function() {
             document.getElementById('modal').classList.add('show');
         };
 
         window.hideModal = function() {
             document.getElementById('modal').classList.remove('show');
+        };
+
+        // Модальное окно выхода
+        window.showLogoutModal = function() {
+            document.getElementById('logoutModal').classList.add('show');
+        };
+
+        window.hideLogoutModal = function() {
+            document.getElementById('logoutModal').classList.remove('show');
+        };
+
+        window.confirmLogout = async function() {
+            try {
+                if (currentUser) {
+                    await updateDoc(doc(db, 'users', currentUser.uid), { status: 'offline' });
+                }
+                await signOut(auth);
+                hideLogoutModal();
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Ошибка при выходе:', error);
+                alert('Ошибка: ' + error.message);
+                hideLogoutModal();
+            }
         };
 
         window.createChannel = async function() {
@@ -449,23 +559,6 @@
             localStorage.setItem('theme', isDark ? 'light' : 'dark');
         };
 
-        window.logout = async function() {
-            if (confirm('Вы действительно хотите выйти из аккаунта?')) {
-                try {
-                    if (currentUser) {
-                        await updateDoc(doc(db, 'users', currentUser.uid), { status: 'offline' });
-                    }
-                    await signOut(auth);
-                    // Принудительный редирект на страницу входа
-                    window.location.href = 'index.html';
-                } catch (error) {
-                    console.error('Ошибка при выходе:', error);
-                    alert('Ошибка: ' + error.message);
-                }
-            }
-        };
-
-        // Загрузка сохраненной темы
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
