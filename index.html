@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sniggers Messenger - Вход</title>
+    <title>TeamFlow Messenger - Вход</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -66,7 +66,7 @@
     <div class="container">
         <div class="logo">
             <div class="logo-icon">💬</div>
-            <h1>Sniggers</h1>
+            <h1>TeamFlow</h1>
             <p>Мессенджер для команд</p>
         </div>
 
@@ -111,14 +111,14 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-        // ⚠️ ВСТАВЬ СЮДА СВОЮ КОНФИГУРАЦИЮ ИЗ FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBSAzrVn3G9_14VtQZ9TkffdNlhwPe0HkE",
             authDomain: "ss-a7e6b.firebaseapp.com",
             projectId: "ss-a7e6b",
             storageBucket: "ss-a7e6b.firebasestorage.app",
             messagingSenderId: "919088676851",
-            appId: "1:919088676851:web:a1c73cbd463143fff19c86"
+            appId: "1:919088676851:web:a1c73cbd463143fff19c86",
+            measurementId: "G-WBVDW0EMDX"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -175,8 +175,11 @@
 
             try {
                 const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+                
+                // Сохраняем имя в профиле Firebase Auth
                 await updateProfile(userCred.user, { displayName: name });
                 
+                // Создаем документ пользователя в базе данных
                 await setDoc(doc(db, 'users', userCred.user.uid), {
                     uid: userCred.user.uid,
                     name: name,
@@ -187,7 +190,7 @@
                     createdAt: new Date().toISOString()
                 });
 
-                // Создаем общий канал general
+                // Создаем общий канал general, если его нет
                 await setDoc(doc(db, 'channels', 'general'), {
                     name: 'general',
                     type: 'public',
@@ -207,6 +210,7 @@
             btn.textContent = 'Создать аккаунт';
         };
 
+        // Если пользователь уже вошел, сразу кидаем в приложение
         auth.onAuthStateChanged((user) => {
             if (user) window.location.href = 'app.html';
         });

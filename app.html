@@ -7,376 +7,85 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg: #1a1a2e;
-            --card: #16213e;
-            --text: #ffffff;
-            --text-secondary: #a0a0a0;
-            --border: #2a2a3e;
-            --hover: #2a2a3e;
-            --accent: #667eea;
+            --bg: #1a1a2e; --card: #16213e; --text: #ffffff; --text-secondary: #a0a0a0;
+            --border: #2a2a3e; --hover: #2a2a3e; --accent: #667eea;
             --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            height: 100vh;
-            overflow: hidden;
-        }
-        .app {
-            display: grid;
-            grid-template-columns: 280px 1fr 280px;
-            height: 100vh;
-            background: var(--border);
-            gap: 1px;
-        }
-        .sidebar {
-            background: var(--card);
-            display: flex;
-            flex-direction: column;
-        }
-        .user-header {
-            padding: 16px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            position: relative;
-            flex-shrink: 0;
-        }
-        .avatar.online::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 10px;
-            height: 10px;
-            background: #4caf50;
-            border-radius: 50%;
-            border: 2px solid var(--card);
-        }
-        .user-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .user-name {
-            font-weight: 600;
-            font-size: 14px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .user-status {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-        .theme-btn {
-            padding: 8px;
-            background: var(--hover);
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-        }
-        .sidebar-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-        }
-        .section-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .add-btn {
-            background: none;
-            border: none;
-            color: var(--accent);
-            cursor: pointer;
-            font-size: 18px;
-            padding: 0 4px;
-        }
-        .item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-bottom: 4px;
-            transition: all 0.2s;
-        }
-        .item:hover {
-            background: var(--hover);
-        }
-        .item.active {
-            background: var(--gradient);
-            color: white;
-        }
-        .item-icon {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
-        .item-name {
-            flex: 1;
-            font-size: 14px;
-        }
-        .sidebar-footer {
-            padding: 16px;
-            border-top: 1px solid var(--border);
-        }
-        .logout-btn {
-            width: 100%;
-            padding: 10px;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .logout-btn:hover {
-            background: #c0392b;
-        }
-        .chat {
-            background: var(--card);
-            display: flex;
-            flex-direction: column;
-        }
-        .chat-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
-        }
-        .chat-info h2 {
-            font-size: 16px;
-            margin-bottom: 2px;
-        }
-        .chat-info p {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-        .messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .message {
-            display: flex;
-            gap: 12px;
-            max-width: 70%;
-        }
-        .message.own {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
-        .message-content {
-            background: var(--hover);
-            padding: 12px 16px;
-            border-radius: 16px;
-        }
-        .message.own .message-content {
-            background: var(--gradient);
-            color: white;
-        }
-        .message-author {
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: var(--accent);
-        }
-        .message.own .message-author {
-            color: rgba(255,255,255,0.9);
-        }
-        .message-text {
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        .message-time {
-            font-size: 11px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-        .message.own .message-time {
-            color: rgba(255,255,255,0.7);
-        }
-        .input-area {
-            padding: 16px 20px;
-            border-top: 1px solid var(--border);
-        }
-        .input-wrapper {
-            display: flex;
-            gap: 12px;
-        }
-        .message-input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            background: var(--hover);
-            color: var(--text);
-            font-size: 14px;
-            outline: none;
-        }
-        .send-btn {
-            padding: 12px 24px;
-            background: var(--gradient);
-            color: white;
-            border: none;
-            border-radius: 24px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .info-panel {
-            background: var(--card);
-            display: flex;
-            flex-direction: column;
-        }
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid var(--border);
-        }
-        .tab {
-            flex: 1;
-            padding: 12px 8px;
-            text-align: center;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            border-bottom: 2px solid transparent;
-        }
-        .tab.active {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
-        .tab-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-        }
-        .panel {
-            display: none;
-        }
-        .panel.active {
-            display: block;
-        }
-        .member {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-        }
-        .member:hover {
-            background: var(--hover);
-        }
-        .member-info {
-            flex: 1;
-        }
-        .member-name {
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .member-role {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-        .add-friend-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin-bottom: 12px;
-            background: var(--hover);
-            color: var(--text);
-        }
-        .add-friend-btn {
-            width: 100%;
-            padding: 10px;
-            background: var(--gradient);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal.show {
-            display: flex;
-        }
-        .modal-content {
-            background: var(--card);
-            padding: 24px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 400px;
-        }
-        .modal-content h3 {
-            margin-bottom: 16px;
-        }
-        .modal-content input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin-bottom: 16px;
-            background: var(--hover);
-            color: var(--text);
-        }
-        .modal-buttons {
-            display: flex;
-            gap: 8px;
-        }
-        .modal-buttons button {
-            flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .btn-cancel {
-            background: var(--hover);
-            color: var(--text);
-        }
-        .btn-confirm {
-            background: var(--gradient);
-            color: white;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+        
+        .app { display: grid; grid-template-columns: 280px 1fr 280px; height: 100vh; background: var(--border); gap: 1px; }
+        
+        .sidebar { background: var(--card); display: flex; flex-direction: column; }
+        .user-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--gradient); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; position: relative; flex-shrink: 0; }
+        .avatar.online::after { content: ''; position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; background: #4caf50; border-radius: 50%; border: 2px solid var(--card); }
+        .user-info { flex: 1; min-width: 0; }
+        .user-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-status { font-size: 12px; color: var(--text-secondary); }
+        .theme-btn { padding: 8px; background: var(--hover); border-radius: 50%; cursor: pointer; font-size: 18px; }
+        
+        .sidebar-content { flex: 1; overflow-y: auto; padding: 16px; }
+        .section-title { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .add-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 18px; padding: 0 4px; }
+        
+        .item { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; cursor: pointer; margin-bottom: 4px; transition: all 0.2s; }
+        .item:hover { background: var(--hover); }
+        .item.active { background: var(--gradient); color: white; }
+        .item-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .item-name { flex: 1; font-size: 14px; }
+        
+        .sidebar-footer { padding: 16px; border-top: 1px solid var(--border); }
+        .logout-btn { width: 100%; padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; }
+        .logout-btn:hover { background: #c0392b; }
+        
+        .chat { background: var(--card); display: flex; flex-direction: column; }
+        .chat-header { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+        .chat-info h2 { font-size: 16px; margin-bottom: 2px; }
+        .chat-info p { font-size: 12px; color: var(--text-secondary); }
+        
+        .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .message { display: flex; gap: 12px; max-width: 70%; }
+        .message.own { align-self: flex-end; flex-direction: row-reverse; }
+        .message-content { background: var(--hover); padding: 12px 16px; border-radius: 16px; }
+        .message.own .message-content { background: var(--gradient); color: white; }
+        .message-author { font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--accent); }
+        .message.own .message-author { color: rgba(255,255,255,0.9); }
+        .message-text { font-size: 14px; line-height: 1.4; }
+        .message-time { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+        .message.own .message-time { color: rgba(255,255,255,0.7); }
+        
+        .input-area { padding: 16px 20px; border-top: 1px solid var(--border); }
+        .input-wrapper { display: flex; gap: 12px; }
+        .message-input { flex: 1; padding: 12px 16px; border: 1px solid var(--border); border-radius: 24px; background: var(--hover); color: var(--text); font-size: 14px; outline: none; }
+        .send-btn { padding: 12px 24px; background: var(--gradient); color: white; border: none; border-radius: 24px; cursor: pointer; font-weight: 600; }
+        
+        .info-panel { background: var(--card); display: flex; flex-direction: column; }
+        .tabs { display: flex; border-bottom: 1px solid var(--border); }
+        .tab { flex: 1; padding: 12px 8px; text-align: center; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--text-secondary); border-bottom: 2px solid transparent; }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        
+        .tab-content { flex: 1; overflow-y: auto; padding: 16px; }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        
+        .member { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; margin-bottom: 8px; }
+        .member:hover { background: var(--hover); }
+        .member-info { flex: 1; }
+        .member-name { font-size: 14px; font-weight: 600; }
+        .member-role { font-size: 12px; color: var(--text-secondary); }
+        
+        .add-friend-input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; background: var(--hover); color: var(--text); }
+        .add-friend-btn { width: 100%; padding: 10px; background: var(--gradient); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: var(--card); padding: 24px; border-radius: 16px; width: 90%; max-width: 400px; }
+        .modal-content h3 { margin-bottom: 16px; }
+        .modal-content input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; background: var(--hover); color: var(--text); }
+        .modal-buttons { display: flex; gap: 8px; }
+        .modal-buttons button { flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+        .btn-cancel { background: var(--hover); color: var(--text); }
+        .btn-confirm { background: var(--gradient); color: white; }
     </style>
 </head>
 <body>
@@ -456,102 +165,125 @@
             </div>
         </div>
     </div>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, doc, getDoc, updateDoc, arrayUnion, onSnapshot, collection, addDoc, query, orderBy, serverTimestamp, setDoc, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         const firebaseConfig = {
-  apiKey: "AIzaSyBSAzrVn3G9_14VtQZ9TkffdNlhwPe0HkE",
-  authDomain: "ss-a7e6b.firebaseapp.com",
-  projectId: "ss-a7e6b",
-  storageBucket: "ss-a7e6b.firebasestorage.app",
-  messagingSenderId: "919088676851",
-  appId: "1:919088676851:web:a1c73cbd463143fff19c86",
-  measurementId: "G-WBVDW0EMDX"
-};
+            apiKey: "AIzaSyBSAzrVn3G9_14VtQZ9TkffdNlhwPe0HkE",
+            authDomain: "ss-a7e6b.firebaseapp.com",
+            projectId: "ss-a7e6b",
+            storageBucket: "ss-a7e6b.firebasestorage.app",
+            messagingSenderId: "919088676851",
+            appId: "1:919088676851:web:a1c73cbd463143fff19c86",
+            measurementId: "G-WBVDW0EMDX"
+        };
 
-        let app, auth, db;
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
         let currentUser = null;
         let currentChat = null;
         let currentChatType = null;
         let unsubscribe = null;
 
-        function initFirebase() {
-            try {
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-                console.log('Firebase initialized');
-            } catch (error) {
-                console.error('Firebase error:', error);
-            }
-        }
-
-        initFirebase();
-
-        onAuthStateChanged(auth, async function(user) {
+        onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = 'index.html';
                 return;
             }
             currentUser = user;
+            
             try {
-                var userDoc = await getDoc(doc(db, 'users', user.uid));
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                let displayName = user.displayName;
+
                 if (userDoc.exists()) {
-                    var data = userDoc.data();
-                    document.getElementById('userName').textContent = data.name || 'User';
-                    document.getElementById('userAvatar').textContent = (data.name || '?').charAt(0).toUpperCase();
-                    loadChannels(data.channels || []);
-                    loadFriends(data.friends || []);
+                    const data = userDoc.data();
+                    // Если имя есть в базе, берем его. Иначе берем из auth или email
+                    displayName = data.name || user.displayName || user.email.split('@')[0] || 'User';
+                    
+                    // Если в базе имени нет, но оно есть в auth, обновим базу
+                    if (!data.name && user.displayName) {
+                        await updateDoc(doc(db, 'users', user.uid), { name: user.displayName });
+                    }
+                } else {
+                    // Если документа нет, создаем его
+                    displayName = user.displayName || user.email.split('@')[0] || 'User';
+                    await setDoc(doc(db, 'users', user.uid), {
+                        uid: user.uid,
+                        name: displayName,
+                        email: user.email,
+                        friends: [],
+                        channels: ['general'],
+                        status: 'online'
+                    });
                 }
+
+                // Обновляем интерфейс
+                document.getElementById('userName').textContent = displayName;
+                document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+                
+                // Загружаем данные
+                const finalDoc = await getDoc(doc(db, 'users', user.uid));
+                const finalData = finalDoc.data();
+                loadChannels(finalData.channels || []);
+                loadFriends(finalData.friends || []);
+                
+                // Статус онлайн
                 await updateDoc(doc(db, 'users', user.uid), { status: 'online' });
+
             } catch (error) {
-                console.error('Error loading user:', error);
+                console.error("Ошибка загрузки данных:", error);
+                // Фолбэк на случай ошибки
+                const fallbackName = user.displayName || user.email.split('@')[0] || 'User';
+                document.getElementById('userName').textContent = fallbackName;
+                document.getElementById('userAvatar').textContent = fallbackName.charAt(0).toUpperCase();
             }
         });
 
         function loadChannels(channels) {
-            var container = document.getElementById('channelsList');
+            const container = document.getElementById('channelsList');
             container.innerHTML = '';
-            channels.forEach(function(id) {
-                var div = document.createElement('div');
+            channels.forEach(id => {
+                const div = document.createElement('div');
                 div.className = 'item';
-                div.innerHTML = '<div class="item-icon">#</div><div class="item-name">' + id + '</div>';
+                div.innerHTML = `<div class="item-icon">#</div><div class="item-name">${id}</div>`;
                 div.onclick = function() { openChat(id, 'channel'); };
                 container.appendChild(div);
             });
         }
 
         async function loadFriends(friends) {
-            var container = document.getElementById('friendsList');
+            const container = document.getElementById('friendsList');
             container.innerHTML = '';
-            for (var i = 0; i < friends.length; i++) {
-                var fid = friends[i];
+            for (const fid of friends) {
                 try {
-                    var fdoc = await getDoc(doc(db, 'users', fid));
+                    const fdoc = await getDoc(doc(db, 'users', fid));
                     if (fdoc.exists()) {
-                        var fdata = fdoc.data();
-                        var div = document.createElement('div');
+                        const fdata = fdoc.data();
+                        const div = document.createElement('div');
                         div.className = 'item';
-                        div.innerHTML = '<div class="avatar" style="width:32px;height:32px;font-size:11px">' + fdata.name.charAt(0).toUpperCase() + '</div><div class="item-name">' + fdata.name + '</div>';
+                        div.innerHTML = `<div class="avatar" style="width:32px;height:32px;font-size:11px">${fdata.name.charAt(0).toUpperCase()}</div><div class="item-name">${fdata.name}</div>`;
                         div.onclick = function() { openChat(fid, 'friend', fdata.name); };
                         container.appendChild(div);
                     }
                 } catch (error) {
-                    console.error('Error loading friend:', error);
+                    console.error('Ошибка загрузки друга:', error);
                 }
             }
         }
 
-        window.openChat = async function(id, type, name) {
+        window.openChat = async function(id, type, name = null) {
             currentChat = id;
             currentChatType = type;
-            var items = document.querySelectorAll('.item');
-            for (var i = 0; i < items.length; i++) {
-                items[i].classList.remove('active');
-            }
+            
+            document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
             event.currentTarget.classList.add('active');
+            
             if (type === 'channel') {
                 document.getElementById('chatName').textContent = '#' + id;
                 document.getElementById('chatInfo').textContent = 'Канал';
@@ -559,26 +291,35 @@
                 document.getElementById('chatName').textContent = name;
                 document.getElementById('chatInfo').textContent = 'Личный чат';
             }
+            
             loadMessages(id, type);
-            loadMembers(id, type);
+            loadMembers();
         };
 
         function loadMessages(chatId, type) {
             if (unsubscribe) {
                 unsubscribe();
             }
-            var chatIdStr = type === 'channel' ? 'channel_' + chatId : 'dm_' + [currentUser.uid, chatId].sort().join('_');
-            var q = query(collection(db, 'chats', chatIdStr, 'messages'), orderBy('timestamp', 'asc'));
-            unsubscribe = onSnapshot(q, function(snap) {
-                var container = document.getElementById('messages');
+            const chatIdStr = type === 'channel' ? 'channel_' + chatId : 'dm_' + [currentUser.uid, chatId].sort().join('_');
+            const q = query(collection(db, 'chats', chatIdStr, 'messages'), orderBy('timestamp', 'asc'));
+            
+            unsubscribe = onSnapshot(q, (snap) => {
+                const container = document.getElementById('messages');
                 container.innerHTML = '';
-                snap.forEach(function(d) {
-                    var m = d.data();
-                    var time = m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}) : '';
-                    var isOwn = m.senderId === currentUser.uid;
-                    var msg = document.createElement('div');
+                snap.forEach(d => {
+                    const m = d.data();
+                    const time = m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}) : '';
+                    const isOwn = m.senderId === currentUser.uid;
+                    const msg = document.createElement('div');
                     msg.className = 'message' + (isOwn ? ' own' : '');
-                    msg.innerHTML = '<div class="avatar" style="width:36px;height:36px;font-size:12px">' + m.senderName.charAt(0).toUpperCase() + '</div><div class="message-content"><div class="message-author">' + m.senderName + '</div><div class="message-text">' + m.text + '</div><div class="message-time">' + time + '</div></div>';
+                    msg.innerHTML = `
+                        <div class="avatar" style="width:36px;height:36px;font-size:12px">${m.senderName.charAt(0).toUpperCase()}</div>
+                        <div class="message-content">
+                            <div class="message-author">${m.senderName}</div>
+                            <div class="message-text">${m.text}</div>
+                            <div class="message-time">${time}</div>
+                        </div>
+                    `;
                     container.appendChild(msg);
                 });
                 container.scrollTop = container.scrollHeight;
@@ -586,28 +327,38 @@
         }
 
         function loadMembers() {
-            var container = document.getElementById('membersList');
-            container.innerHTML = '<div class="member"><div class="avatar online" style="width:36px;height:36px">' + currentUser.displayName.charAt(0).toUpperCase() + '</div><div class="member-info"><div class="member-name">' + currentUser.displayName + '</div><div class="member-role">Вы</div></div></div>';
+            const container = document.getElementById('membersList');
+            const name = currentUser.displayName || 'User';
+            container.innerHTML = `
+                <div class="member">
+                    <div class="avatar online" style="width:36px;height:36px">${name.charAt(0).toUpperCase()}</div>
+                    <div class="member-info">
+                        <div class="member-name">${name}</div>
+                        <div class="member-role">Вы</div>
+                    </div>
+                </div>
+            `;
         }
 
         window.sendMsg = async function() {
-            var input = document.getElementById('msgInput');
-            var text = input.value.trim();
+            const input = document.getElementById('msgInput');
+            const text = input.value.trim();
             if (!text || !currentChat) {
-                alert('Выберите чат для отправки');
+                alert('Сначала выберите чат слева!');
                 return;
             }
-            var chatIdStr = currentChatType === 'channel' ? 'channel_' + currentChat : 'dm_' + [currentUser.uid, currentChat].sort().join('_');
+            const chatIdStr = currentChatType === 'channel' ? 'channel_' + currentChat : 'dm_' + [currentUser.uid, currentChat].sort().join('_');
             try {
                 await addDoc(collection(db, 'chats', chatIdStr, 'messages'), {
                     text: text,
                     senderId: currentUser.uid,
-                    senderName: currentUser.displayName,
+                    senderName: currentUser.displayName || 'User',
                     timestamp: serverTimestamp()
                 });
                 input.value = '';
             } catch (error) {
-                console.error('Send error:', error);
+                console.error('Ошибка отправки:', error);
+                alert('Ошибка отправки: ' + error.message);
             }
         };
 
@@ -626,86 +377,96 @@
         };
 
         window.createChannel = async function() {
-            var name = document.getElementById('channelName').value.trim();
+            const name = document.getElementById('channelName').value.trim();
             if (!name) {
-                alert('Введите название');
+                alert('Введите название канала');
                 return;
             }
             try {
                 await updateDoc(doc(db, 'users', currentUser.uid), { channels: arrayUnion(name) });
-                await setDoc(doc(db, 'channels', name), { name: name, createdBy: currentUser.uid, members: [currentUser.uid] }, { merge: true });
+                await setDoc(doc(db, 'channels', name), { 
+                    name: name, 
+                    createdBy: currentUser.uid, 
+                    members: [currentUser.uid] 
+                }, { merge: true });
+                
                 hideModal();
                 document.getElementById('channelName').value = '';
-                var udoc = await getDoc(doc(db, 'users', currentUser.uid));
+                
+                const udoc = await getDoc(doc(db, 'users', currentUser.uid));
                 loadChannels(udoc.data().channels || []);
             } catch (error) {
-                console.error('Create channel error:', error);
+                console.error('Ошибка создания канала:', error);
+                alert('Ошибка: ' + error.message);
             }
         };
 
         window.addFriend = async function() {
-            var email = document.getElementById('friendEmail').value.trim();
+            const email = document.getElementById('friendEmail').value.trim();
             if (!email) {
-                alert('Введите email');
+                alert('Введите email друга');
                 return;
             }
             try {
-                var q = query(collection(db, 'users'), where('email', '==', email));
-                var snap = await getDocs(q);
-                if (snap.empty) {
-                    alert('Пользователь не найден');
-                    return;
+                const q = query(collection(db, 'users'), where('email', '==', email));
+                const snap = await getDocs(q);
+                
+                if (snap.empty) { 
+                    alert('Пользователь с таким email не найден'); 
+                    return; 
                 }
-                var friendDoc = snap.docs[0];
-                if (friendDoc.id === currentUser.uid) {
-                    alert('Это вы!');
-                    return;
+                
+                const friendDoc = snap.docs[0];
+                if (friendDoc.id === currentUser.uid) { 
+                    alert('Вы не можете добавить себя в друзья!'); 
+                    return; 
                 }
-                var friendData = friendDoc.data();
+                
+                const friendData = friendDoc.data();
                 await updateDoc(doc(db, 'users', currentUser.uid), { friends: arrayUnion(friendDoc.id) });
-                alert('Друг добавлен: ' + friendData.name);
+                
+                alert('Друг ' + friendData.name + ' успешно добавлен!');
                 document.getElementById('friendEmail').value = '';
-                var udoc = await getDoc(doc(db, 'users', currentUser.uid));
+                
+                const udoc = await getDoc(doc(db, 'users', currentUser.uid));
                 loadFriends(udoc.data().friends || []);
             } catch (error) {
-                console.error('Add friend error:', error);
+                console.error('Ошибка добавления друга:', error);
+                alert('Ошибка: ' + error.message);
             }
         };
 
         window.switchTab = function(tab, el) {
-            var tabs = document.querySelectorAll('.tab');
-            for (var i = 0; i < tabs.length; i++) {
-                tabs[i].classList.remove('active');
-            }
-            var panels = document.querySelectorAll('.panel');
-            for (var j = 0; j < panels.length; j++) {
-                panels[j].classList.remove('active');
-            }
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             el.classList.add('active');
             document.getElementById(tab + 'Panel').classList.add('active');
         };
 
         window.toggleTheme = function() {
-            var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
             localStorage.setItem('theme', isDark ? 'light' : 'dark');
         };
 
         window.logout = async function() {
-            if (confirm('Выйти?')) {
+            if (confirm('Вы действительно хотите выйти из аккаунта?')) {
                 try {
                     if (currentUser) {
                         await updateDoc(doc(db, 'users', currentUser.uid), { status: 'offline' });
                     }
                     await signOut(auth);
+                    // Принудительный редирект на страницу входа
                     window.location.href = 'index.html';
                 } catch (error) {
-                    console.error('Logout error:', error);
+                    console.error('Ошибка при выходе:', error);
+                    alert('Ошибка: ' + error.message);
                 }
             }
         };
 
-        var savedTheme = localStorage.getItem('theme');
+        // Загрузка сохраненной темы
+        const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
         }
