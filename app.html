@@ -39,9 +39,12 @@
         .logout-btn:hover { background: #c0392b; }
         
         .chat { background: var(--card); display: flex; flex-direction: column; }
-        .chat-header { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+        .chat-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .chat-info h2 { font-size: 16px; margin-bottom: 2px; }
         .chat-info p { font-size: 12px; color: var(--text-secondary); }
+        .call-btn { padding: 8px 16px; background: var(--gradient); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .call-btn:hover { transform: scale(1.05); }
+        .call-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
         .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
         .message { display: flex; gap: 12px; max-width: 70%; }
@@ -101,6 +104,87 @@
         .btn-no:hover { background: var(--border); }
         .btn-yes { background: #e74c3c; color: white; }
         .btn-yes:hover { background: #c0392b; }
+
+        /* Call Modal Styles */
+        .call-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+        .call-modal.show { display: flex; }
+        .call-content {
+            background: var(--card);
+            padding: 40px;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            animation: callSlideIn 0.3s ease;
+        }
+        @keyframes callSlideIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .call-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            margin: 0 auto 20px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .call-status {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .call-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 32px;
+        }
+        .call-controls {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+        .call-control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.2s;
+        }
+        .call-control-btn:hover { transform: scale(1.1); }
+        .btn-mute { background: var(--hover); color: var(--text); }
+        .btn-mute.muted { background: #f39c12; color: white; }
+        .btn-end-call { background: #e74c3c; color: white; }
+        .btn-end-call:hover { background: #c0392b; }
     </style>
 </head>
 <body>
@@ -133,6 +217,9 @@
                     <h2 id="chatName">Выберите чат</h2>
                     <p id="chatInfo">Начните общение</p>
                 </div>
+                <button class="call-btn" id="callBtn" onclick="startCall()" disabled>
+                    📞 Позвонить
+                </button>
             </div>
             <div class="messages" id="messages">
                 <div style="text-align: center; color: var(--text-secondary); padding: 40px;">
@@ -194,10 +281,23 @@
         </div>
     </div>
 
+    <!-- Call Modal -->
+    <div class="call-modal" id="callModal">
+        <div class="call-content">
+            <div class="call-avatar" id="callAvatar">?</div>
+            <div class="call-status" id="callStatus">Звонок...</div>
+            <div class="call-name" id="callName">User</div>
+            <div class="call-controls">
+                <button class="call-control-btn btn-mute" id="muteBtn" onclick="toggleMute()">🎤</button>
+                <button class="call-control-btn btn-end-call" onclick="endCall()">📞</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, doc, getDoc, updateDoc, arrayUnion, onSnapshot, collection, addDoc, query, orderBy, serverTimestamp, setDoc, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, doc, getDoc, updateDoc, arrayUnion, onSnapshot, collection, addDoc, query, orderBy, serverTimestamp, setDoc, where, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyBSAzrVn3G9_14VtQZ9TkffdNlhwPe0HkE",
@@ -216,7 +316,24 @@
         let currentUser = null;
         let currentChat = null;
         let currentChatType = null;
+        let currentChatName = null;
         let unsubscribe = null;
+        let callUnsubscribe = null;
+
+        // WebRTC variables
+        let localStream = null;
+        let peerConnection = null;
+        let isCallActive = false;
+        let isMuted = false;
+        let callRecipientId = null;
+        let callId = null;
+
+        const rtcConfig = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
@@ -247,6 +364,9 @@
                 loadChannels(finalData.channels || []);
                 loadFriends(finalData.friends || []);
                 await updateDoc(doc(db, 'users', user.uid), { status: 'online' });
+
+                // Listen for incoming calls
+                listenForCalls();
 
             } catch (error) {
                 console.error("Ошибка загрузки данных:", error);
@@ -287,16 +407,20 @@
         }
 
         window.openChat = async function(id, type, name = null) {
-            currentChat = id; currentChatType = type;
+            currentChat = id; currentChatType = type; currentChatName = name;
             document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
             event.currentTarget.classList.add('active');
             
             if (type === 'channel') {
                 document.getElementById('chatName').textContent = '#' + id;
                 document.getElementById('chatInfo').textContent = 'Канал';
+                document.getElementById('callBtn').disabled = true;
+                document.getElementById('callBtn').textContent = '📞 Позвонить';
             } else {
                 document.getElementById('chatName').textContent = name;
                 document.getElementById('chatInfo').textContent = 'Личный чат';
+                document.getElementById('callBtn').disabled = false;
+                document.getElementById('callBtn').textContent = '📞 Позвонить';
             }
             loadMessages(id, type);
             loadMembers();
@@ -384,15 +508,10 @@
             } catch (error) { console.error('Ошибка создания канала:', error); alert('Ошибка: ' + error.message); }
         };
 
-        // 🔥 НОВАЯ ФУНКЦИЯ ДОБАВЛЕНИЯ ДРУГА ПО НИКНЕЙМУ
         window.addFriend = async function() {
             const nickname = document.getElementById('friendNickname').value.trim();
-            if (!nickname) {
-                alert('Введите никнейм друга');
-                return;
-            }
+            if (!nickname) { alert('Введите никнейм друга'); return; }
             try {
-                // Ищем пользователя по полю 'name' (никнейм)
                 const q = query(collection(db, 'users'), where('name', '==', nickname));
                 const snap = await getDocs(q);
                 
@@ -408,8 +527,6 @@
                 }
                 
                 const friendData = friendDoc.data();
-                
-                // Проверка: есть ли уже в друзьях
                 const currentUserDoc = await getDoc(doc(db, 'users', currentUser.uid));
                 const currentFriends = currentUserDoc.data().friends || [];
                 if (currentFriends.includes(friendDoc.id)) {
@@ -417,13 +534,11 @@
                     return;
                 }
 
-                // Добавляем в друзья
                 await updateDoc(doc(db, 'users', currentUser.uid), { friends: arrayUnion(friendDoc.id) });
                 
                 alert('Друг "' + friendData.name + '" успешно добавлен!');
                 document.getElementById('friendNickname').value = '';
                 
-                // Обновляем список
                 const udoc = await getDoc(doc(db, 'users', currentUser.uid));
                 loadFriends(udoc.data().friends || []);
             } catch (error) {
@@ -449,6 +564,268 @@
         if (savedTheme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
         }
+
+        // ========== VOICE CALL FUNCTIONS ==========
+
+        window.startCall = async function() {
+            if (!currentChat || currentChatType !== 'friend') {
+                alert('Голосовые звонки доступны только в личных сообщениях');
+                return;
+            }
+
+            callRecipientId = currentChat;
+            callId = 'call_' + [currentUser.uid, callRecipientId].sort().join('_') + '_' + Date.now();
+
+            try {
+                // Get user media
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                
+                // Show call modal
+                document.getElementById('callModal').classList.add('show');
+                document.getElementById('callName').textContent = currentChatName;
+                document.getElementById('callAvatar').textContent = currentChatName.charAt(0).toUpperCase();
+                document.getElementById('callStatus').textContent = 'Звоним...';
+                
+                isCallActive = true;
+                isMuted = false;
+
+                // Create peer connection
+                createPeerConnection();
+
+                // Add local stream
+                localStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, localStream);
+                });
+
+                // Create offer
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+
+                // Send call request via Firestore
+                await setDoc(doc(db, 'calls', callId), {
+                    callerId: currentUser.uid,
+                    callerName: currentUser.displayName,
+                    recipientId: callRecipientId,
+                    status: 'ringing',
+                    timestamp: serverTimestamp(),
+                    offer: {
+                        sdp: offer.sdp,
+                        type: offer.type
+                    }
+                });
+
+                // Listen for call responses
+                listenForCallResponse();
+
+            } catch (error) {
+                console.error('Call error:', error);
+                alert('Ошибка при начале звонка: ' + error.message);
+                endCall();
+            }
+        };
+
+        function createPeerConnection() {
+            peerConnection = new RTCPeerConnection(rtcConfig);
+
+            peerConnection.onicecandidate = async (event) => {
+                if (event.candidate) {
+                    try {
+                        await updateDoc(doc(db, 'calls', callId), {
+                            iceCandidates: arrayUnion({
+                                candidate: event.candidate.candidate,
+                                sdpMid: event.candidate.sdpMid,
+                                sdpMLineIndex: event.candidate.sdpMLineIndex,
+                                from: currentUser.uid
+                            })
+                        });
+                    } catch (error) {
+                        console.error('Error sending ICE candidate:', error);
+                    }
+                }
+            };
+
+            peerConnection.ontrack = (event) => {
+                const audio = new Audio();
+                audio.srcObject = event.streams[0];
+                audio.autoplay = true;
+                audio.onloadedmetadata = () => {
+                    audio.play();
+                };
+                document.getElementById('callStatus').textContent = 'Разговор...';
+            };
+
+            peerConnection.onconnectionstatechange = () => {
+                if (peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'failed') {
+                    endCall();
+                }
+            };
+        }
+
+        function listenForCallResponse() {
+            callUnsubscribe = onSnapshot(doc(db, 'calls', callId), async (docSnap) => {
+                if (!docSnap.exists()) return;
+                
+                const callData = docSnap.data();
+                
+                if (callData.status === 'accepted' && callData.answer) {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.answer));
+                }
+                
+                if (callData.status === 'ended' || callData.status === 'rejected') {
+                    endCall();
+                }
+            });
+        }
+
+        function listenForCalls() {
+            const callsRef = collection(db, 'calls');
+            const q = query(callsRef, where('recipientId', '==', currentUser.uid));
+            
+            onSnapshot(q, async (snapshot) => {
+                snapshot.forEach(async (doc) => {
+                    const callData = doc.data();
+                    if (callData.status === 'ringing' && callData.callerId !== currentUser.uid) {
+                        // Incoming call
+                        const callerDoc = await getDoc(doc(db, 'users', callData.callerId));
+                        const callerName = callerDoc.exists() ? callerDoc.data().name : 'Unknown';
+                        
+                        const accept = confirm(`Входящий звонок от ${callerName}\n\nПринять звонок?`);
+                        
+                        if (accept) {
+                            await acceptCall(doc.id, callData.offer);
+                        } else {
+                            await rejectCall(doc.id);
+                        }
+                    }
+                });
+            });
+        }
+
+        async function acceptCall(callDocId, offer) {
+            callId = callDocId;
+            callRecipientId = null; // Will be set from call data
+            
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                
+                document.getElementById('callModal').classList.add('show');
+                document.getElementById('callName').textContent = 'Звонок';
+                document.getElementById('callAvatar').textContent = '📞';
+                document.getElementById('callStatus').textContent = 'Подключение...';
+                
+                isCallActive = true;
+                isMuted = false;
+
+                createPeerConnection();
+
+                localStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, localStream);
+                });
+
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+
+                await updateDoc(doc(db, 'calls', callId), {
+                    status: 'accepted',
+                    answer: {
+                        sdp: answer.sdp,
+                        type: answer.type
+                    }
+                });
+
+                // Listen for ICE candidates
+                callUnsubscribe = onSnapshot(doc(db, 'calls', callId), async (docSnap) => {
+                    if (!docSnap.exists()) return;
+                    const callData = docSnap.data();
+                    
+                    if (callData.iceCandidates) {
+                        for (const ice of callData.iceCandidates) {
+                            if (ice.from !== currentUser.uid && ice.candidate) {
+                                try {
+                                    await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
+                                } catch (e) {
+                                    console.error('Error adding ICE candidate:', e);
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (callData.status === 'ended') {
+                        endCall();
+                    }
+                });
+
+            } catch (error) {
+                console.error('Accept call error:', error);
+                rejectCall(callDocId);
+            }
+        }
+
+        async function rejectCall(callDocId) {
+            try {
+                await updateDoc(doc(db, 'calls', callDocId), { status: 'rejected' });
+                await deleteDoc(doc(db, 'calls', callDocId));
+            } catch (error) {
+                console.error('Reject call error:', error);
+            }
+        }
+
+        window.toggleMute = function() {
+            if (!localStream) return;
+            
+            isMuted = !isMuted;
+            localStream.getAudioTracks().forEach(track => {
+                track.enabled = !isMuted;
+            });
+            
+            const muteBtn = document.getElementById('muteBtn');
+            if (isMuted) {
+                muteBtn.classList.add('muted');
+                muteBtn.textContent = '🔇';
+            } else {
+                muteBtn.classList.remove('muted');
+                muteBtn.textContent = '';
+            }
+        };
+
+        window.endCall = async function() {
+            // Stop local stream
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+
+            // Close peer connection
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+
+            // Unsubscribe from call updates
+            if (callUnsubscribe) {
+                callUnsubscribe();
+                callUnsubscribe = null;
+            }
+
+            // Update call status in Firestore
+            if (callId) {
+                try {
+                    await updateDoc(doc(db, 'calls', callId), { status: 'ended' });
+                    await deleteDoc(doc(db, 'calls', callId));
+                } catch (error) {
+                    console.error('Error ending call:', error);
+                }
+                callId = null;
+            }
+
+            // Hide call modal
+            document.getElementById('callModal').classList.remove('show');
+            
+            isCallActive = false;
+            isMuted = false;
+            callRecipientId = null;
+        };
     </script>
 </body>
 </html>
