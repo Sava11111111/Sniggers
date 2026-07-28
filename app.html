@@ -74,10 +74,10 @@
         .member-name { font-size: 14px; font-weight: 600; }
         .member-role { font-size: 12px; color: var(--text-secondary); }
         
-        .add-friend-input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; background: var(--hover); color: var(--text); }
+        .add-friend-input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; background: var(--hover); color: var(--text); }
+        .friend-hint { font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; padding-left: 4px; }
         .add-friend-btn { width: 100%; padding: 10px; background: var(--gradient); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
         
-        /* Модальное окно создания канала */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
         .modal.show { display: flex; }
         .modal-content { background: var(--card); padding: 24px; border-radius: 16px; width: 90%; max-width: 400px; }
@@ -88,82 +88,19 @@
         .btn-cancel { background: var(--hover); color: var(--text); }
         .btn-confirm { background: var(--gradient); color: white; }
         
-        /* Модальное окно выхода - новое */
-        .logout-modal { 
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.7); 
-            z-index: 2000; 
-            align-items: center; 
-            justify-content: center;
-            backdrop-filter: blur(4px);
-        }
+        .logout-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         .logout-modal.show { display: flex; }
-        .logout-modal-content { 
-            background: var(--card); 
-            padding: 32px; 
-            border-radius: 20px; 
-            width: 90%; 
-            max-width: 350px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: modalSlideIn 0.3s ease;
-        }
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .logout-modal-content h3 { 
-            margin-bottom: 12px;
-            font-size: 20px;
-            color: var(--text);
-        }
-        .logout-modal-content p {
-            color: var(--text-secondary);
-            margin-bottom: 24px;
-            font-size: 14px;
-        }
-        .logout-modal-buttons { 
-            display: flex; 
-            gap: 12px;
-        }
-        .logout-modal-buttons button { 
-            flex: 1; 
-            padding: 12px; 
-            border-radius: 12px; 
-            border: none; 
-            cursor: pointer; 
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .logout-modal-buttons button:hover {
-            transform: translateY(-2px);
-        }
-        .btn-no { 
-            background: var(--hover); 
-            color: var(--text);
-        }
-        .btn-no:hover {
-            background: var(--border);
-        }
-        .btn-yes { 
-            background: #e74c3c; 
-            color: white;
-        }
-        .btn-yes:hover {
-            background: #c0392b;
-        }
+        .logout-modal-content { background: var(--card); padding: 32px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: modalSlideIn 0.3s ease; }
+        @keyframes modalSlideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .logout-modal-content h3 { margin-bottom: 12px; font-size: 20px; color: var(--text); }
+        .logout-modal-content p { color: var(--text-secondary); margin-bottom: 24px; font-size: 14px; }
+        .logout-modal-buttons { display: flex; gap: 12px; }
+        .logout-modal-buttons button { flex: 1; padding: 12px; border-radius: 12px; border: none; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+        .logout-modal-buttons button:hover { transform: translateY(-2px); }
+        .btn-no { background: var(--hover); color: var(--text); }
+        .btn-no:hover { background: var(--border); }
+        .btn-yes { background: #e74c3c; color: white; }
+        .btn-yes:hover { background: #c0392b; }
     </style>
 </head>
 <body>
@@ -220,8 +157,9 @@
                     <div id="membersList"></div>
                 </div>
                 <div class="panel" id="addfriendPanel">
-                    <input type="email" class="add-friend-input" id="friendEmail" placeholder="Email друга">
-                    <button class="add-friend-btn" onclick="addFriend()">Добавить друга</button>
+                    <input type="text" class="add-friend-input" id="friendNickname" placeholder="Никнейм друга">
+                    <div class="friend-hint">💡 Введите точный никнейм (учитываются большие и маленькие буквы)</div>
+                    <button class="add-friend-btn" onclick="addFriend()">Найти и добавить</button>
                     <div id="myFriends" style="margin-top: 20px;"></div>
                 </div>
                 <div class="panel" id="settingsPanel">
@@ -234,7 +172,6 @@
         </div>
     </div>
     
-    <!-- Модальное окно создания канала -->
     <div class="modal" id="modal">
         <div class="modal-content">
             <h3>Создать канал</h3>
@@ -246,7 +183,6 @@
         </div>
     </div>
     
-    <!-- Модальное окно выхода -->
     <div class="logout-modal" id="logoutModal">
         <div class="logout-modal-content">
             <h3>🚪 Выйти из аккаунта?</h3>
@@ -283,12 +219,8 @@
         let unsubscribe = null;
 
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = 'index.html';
-                return;
-            }
+            if (!user) { window.location.href = 'index.html'; return; }
             currentUser = user;
-            
             try {
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 let displayName = user.displayName;
@@ -296,19 +228,14 @@
                 if (userDoc.exists()) {
                     const data = userDoc.data();
                     displayName = data.name || user.displayName || user.email.split('@')[0] || 'User';
-                    
                     if (!data.name && user.displayName) {
                         await updateDoc(doc(db, 'users', user.uid), { name: user.displayName });
                     }
                 } else {
                     displayName = user.displayName || user.email.split('@')[0] || 'User';
                     await setDoc(doc(db, 'users', user.uid), {
-                        uid: user.uid,
-                        name: displayName,
-                        email: user.email,
-                        friends: [],
-                        channels: ['general'],
-                        status: 'online'
+                        uid: user.uid, name: displayName, email: user.email,
+                        friends: [], channels: ['general'], status: 'online'
                     });
                 }
 
@@ -319,7 +246,6 @@
                 const finalData = finalDoc.data();
                 loadChannels(finalData.channels || []);
                 loadFriends(finalData.friends || []);
-                
                 await updateDoc(doc(db, 'users', user.uid), { status: 'online' });
 
             } catch (error) {
@@ -356,16 +282,12 @@
                         div.onclick = function() { openChat(fid, 'friend', fdata.name); };
                         container.appendChild(div);
                     }
-                } catch (error) {
-                    console.error('Ошибка загрузки друга:', error);
-                }
+                } catch (error) { console.error('Ошибка загрузки друга:', error); }
             }
         }
 
         window.openChat = async function(id, type, name = null) {
-            currentChat = id;
-            currentChatType = type;
-            
+            currentChat = id; currentChatType = type;
             document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
             event.currentTarget.classList.add('active');
             
@@ -376,15 +298,12 @@
                 document.getElementById('chatName').textContent = name;
                 document.getElementById('chatInfo').textContent = 'Личный чат';
             }
-            
             loadMessages(id, type);
             loadMembers();
         };
 
         function loadMessages(chatId, type) {
-            if (unsubscribe) {
-                unsubscribe();
-            }
+            if (unsubscribe) unsubscribe();
             const chatIdStr = type === 'channel' ? 'channel_' + chatId : 'dm_' + [currentUser.uid, chatId].sort().join('_');
             const q = query(collection(db, 'chats', chatIdStr, 'messages'), orderBy('timestamp', 'asc'));
             
@@ -403,8 +322,7 @@
                             <div class="message-author">${m.senderName}</div>
                             <div class="message-text">${m.text}</div>
                             <div class="message-time">${time}</div>
-                        </div>
-                    `;
+                        </div>`;
                     container.appendChild(msg);
                 });
                 container.scrollTop = container.scrollHeight;
@@ -421,108 +339,65 @@
                         <div class="member-name">${name}</div>
                         <div class="member-role">Вы</div>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
         window.sendMsg = async function() {
             const input = document.getElementById('msgInput');
             const text = input.value.trim();
-            if (!text || !currentChat) {
-                alert('Сначала выберите чат слева!');
-                return;
-            }
+            if (!text || !currentChat) { alert('Сначала выберите чат слева!'); return; }
             const chatIdStr = currentChatType === 'channel' ? 'channel_' + currentChat : 'dm_' + [currentUser.uid, currentChat].sort().join('_');
             try {
                 await addDoc(collection(db, 'chats', chatIdStr, 'messages'), {
-                    text: text,
-                    senderId: currentUser.uid,
-                    senderName: currentUser.displayName || 'User',
-                    timestamp: serverTimestamp()
+                    text: text, senderId: currentUser.uid,
+                    senderName: currentUser.displayName || 'User', timestamp: serverTimestamp()
                 });
                 input.value = '';
-            } catch (error) {
-                console.error('Ошибка отправки:', error);
-                alert('Ошибка отправки: ' + error.message);
-            }
+            } catch (error) { console.error('Ошибка отправки:', error); alert('Ошибка отправки: ' + error.message); }
         };
 
-        window.handleKey = function(e) {
-            if (e.key === 'Enter') {
-                sendMsg();
-            }
-        };
+        window.handleKey = function(e) { if (e.key === 'Enter') sendMsg(); };
 
-        // Модальное окно создания канала
-        window.showModal = function() {
-            document.getElementById('modal').classList.add('show');
-        };
-
-        window.hideModal = function() {
-            document.getElementById('modal').classList.remove('show');
-        };
-
-        // Модальное окно выхода
-        window.showLogoutModal = function() {
-            document.getElementById('logoutModal').classList.add('show');
-        };
-
-        window.hideLogoutModal = function() {
-            document.getElementById('logoutModal').classList.remove('show');
-        };
+        window.showModal = function() { document.getElementById('modal').classList.add('show'); };
+        window.hideModal = function() { document.getElementById('modal').classList.remove('show'); };
+        window.showLogoutModal = function() { document.getElementById('logoutModal').classList.add('show'); };
+        window.hideLogoutModal = function() { document.getElementById('logoutModal').classList.remove('show'); };
 
         window.confirmLogout = async function() {
             try {
-                if (currentUser) {
-                    await updateDoc(doc(db, 'users', currentUser.uid), { status: 'offline' });
-                }
+                if (currentUser) await updateDoc(doc(db, 'users', currentUser.uid), { status: 'offline' });
                 await signOut(auth);
                 hideLogoutModal();
                 window.location.href = 'index.html';
-            } catch (error) {
-                console.error('Ошибка при выходе:', error);
-                alert('Ошибка: ' + error.message);
-                hideLogoutModal();
-            }
+            } catch (error) { console.error('Ошибка при выходе:', error); alert('Ошибка: ' + error.message); hideLogoutModal(); }
         };
 
         window.createChannel = async function() {
             const name = document.getElementById('channelName').value.trim();
-            if (!name) {
-                alert('Введите название канала');
-                return;
-            }
+            if (!name) { alert('Введите название канала'); return; }
             try {
                 await updateDoc(doc(db, 'users', currentUser.uid), { channels: arrayUnion(name) });
-                await setDoc(doc(db, 'channels', name), { 
-                    name: name, 
-                    createdBy: currentUser.uid, 
-                    members: [currentUser.uid] 
-                }, { merge: true });
-                
-                hideModal();
-                document.getElementById('channelName').value = '';
-                
+                await setDoc(doc(db, 'channels', name), { name: name, createdBy: currentUser.uid, members: [currentUser.uid] }, { merge: true });
+                hideModal(); document.getElementById('channelName').value = '';
                 const udoc = await getDoc(doc(db, 'users', currentUser.uid));
                 loadChannels(udoc.data().channels || []);
-            } catch (error) {
-                console.error('Ошибка создания канала:', error);
-                alert('Ошибка: ' + error.message);
-            }
+            } catch (error) { console.error('Ошибка создания канала:', error); alert('Ошибка: ' + error.message); }
         };
 
+        // 🔥 НОВАЯ ФУНКЦИЯ ДОБАВЛЕНИЯ ДРУГА ПО НИКНЕЙМУ
         window.addFriend = async function() {
-            const email = document.getElementById('friendEmail').value.trim();
-            if (!email) {
-                alert('Введите email друга');
+            const nickname = document.getElementById('friendNickname').value.trim();
+            if (!nickname) {
+                alert('Введите никнейм друга');
                 return;
             }
             try {
-                const q = query(collection(db, 'users'), where('email', '==', email));
+                // Ищем пользователя по полю 'name' (никнейм)
+                const q = query(collection(db, 'users'), where('name', '==', nickname));
                 const snap = await getDocs(q);
                 
                 if (snap.empty) { 
-                    alert('Пользователь с таким email не найден'); 
+                    alert('Пользователь с таким никнеймом не найден.\nПроверьте точность написания (учитываются большие и маленькие буквы).'); 
                     return; 
                 }
                 
@@ -533,11 +408,22 @@
                 }
                 
                 const friendData = friendDoc.data();
+                
+                // Проверка: есть ли уже в друзьях
+                const currentUserDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                const currentFriends = currentUserDoc.data().friends || [];
+                if (currentFriends.includes(friendDoc.id)) {
+                    alert('Этот пользователь уже у вас в друзьях!');
+                    return;
+                }
+
+                // Добавляем в друзья
                 await updateDoc(doc(db, 'users', currentUser.uid), { friends: arrayUnion(friendDoc.id) });
                 
-                alert('Друг ' + friendData.name + ' успешно добавлен!');
-                document.getElementById('friendEmail').value = '';
+                alert('Друг "' + friendData.name + '" успешно добавлен!');
+                document.getElementById('friendNickname').value = '';
                 
+                // Обновляем список
                 const udoc = await getDoc(doc(db, 'users', currentUser.uid));
                 loadFriends(udoc.data().friends || []);
             } catch (error) {
