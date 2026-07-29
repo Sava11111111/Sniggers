@@ -676,6 +676,50 @@
             font-size: 11px;
         }
 
+        /* Add Friend Styles */
+        .add-friend-wrapper {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .add-friend-input {
+            flex: 1;
+            padding: 10px 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .add-friend-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .add-friend-btn {
+            padding: 10px 14px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            min-width: 44px;
+        }
+
+        .add-friend-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
         .user-item {
             display: flex;
             align-items: center;
@@ -1515,6 +1559,17 @@
                 </div>
             </div>
 
+            <!-- НОВАЯ СЕКЦИЯ: ДОБАВИТЬ ДРУГА -->
+            <div class="users-section">
+                <div class="section-title">
+                    <span>Add Friend</span>
+                </div>
+                <div class="add-friend-wrapper">
+                    <input type="text" id="friendNickname" class="add-friend-input" placeholder="Enter exact nickname...">
+                    <button class="add-friend-btn" onclick="addFriend()" title="Send friend request">➕</button>
+                </div>
+            </div>
+
             <div class="users-section">
                 <div class="section-title">
                     <span>Friend Requests</span>
@@ -1763,14 +1818,10 @@
 
         window.acceptFriendRequest = async function(requestId, fromUid) {
             try {
-                // Update request status
                 await updateDoc(doc(db, 'friendRequests', requestId), { status: 'accepted' });
-                
-                // Add to both users' friends lists
                 await updateDoc(doc(db, 'users', currentUser.uid), { friends: arrayUnion(fromUid) });
                 await updateDoc(doc(db, 'users', fromUid), { friends: arrayUnion(currentUser.uid) });
                 
-                // Delete request after 2 seconds
                 setTimeout(() => {
                     deleteDoc(doc(db, 'friendRequests', requestId)).catch(() => {});
                 }, 2000);
@@ -2232,17 +2283,17 @@
             } catch (error) { console.error('Channel create error:', error); alert('Error: ' + error.message); }
         };
 
-        // Add friend by nickname - creates friend request
+        // 🔥 ДОБАВЛЕНИЕ ДРУГА ПО НИКНЕЙМУ
         window.addFriend = async function() {
             const nickname = document.getElementById('friendNickname').value.trim();
-            if (!nickname) { alert('Enter friend nickname'); return; }
+            if (!nickname) { alert('Please enter a nickname'); return; }
             
             try {
                 const q = query(collection(db, 'users'), where('name', '==', nickname));
                 const snap = await getDocs(q);
                 
                 if (snap.empty) { 
-                    alert('User with this nickname not found.'); 
+                    alert('User with this nickname not found. Check exact spelling (case-sensitive)!'); 
                     return; 
                 }
                 
@@ -2254,7 +2305,6 @@
                     return; 
                 }
                 
-                // Check if already friends
                 const currentUserDoc = await getDoc(doc(db, 'users', currentUser.uid));
                 const currentFriends = currentUserDoc.data().friends || [];
                 if (currentFriends.includes(userDoc.id)) {
@@ -2262,7 +2312,6 @@
                     return;
                 }
                 
-                // Check if request already sent
                 const existingRequests = await getDocs(query(
                     collection(db, 'friendRequests'),
                     where('from', '==', currentUser.uid),
@@ -2275,7 +2324,6 @@
                     return;
                 }
                 
-                // Create friend request
                 await addDoc(collection(db, 'friendRequests'), {
                     from: currentUser.uid,
                     fromName: currentUserData?.name || currentUser.displayName,
@@ -2494,8 +2542,8 @@
             isMuted = !isMuted;
             localStream.getAudioTracks().forEach(track => { track.enabled = !isMuted; });
             const muteBtn = document.getElementById('muteBtn');
-            if (isMuted) { muteBtn.classList.add('muted'); muteBtn.textContent = ''; }
-            else { muteBtn.classList.remove('muted'); muteBtn.textContent = ''; }
+            if (isMuted) { muteBtn.classList.add('muted'); muteBtn.textContent = '🔇'; }
+            else { muteBtn.classList.remove('muted'); muteBtn.textContent = '🎤'; }
         };
 
         window.endCall = async function() {
