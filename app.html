@@ -36,7 +36,6 @@
             position: relative;
         }
 
-        /* Animated background gradient */
         body::before {
             content: '';
             position: fixed;
@@ -51,7 +50,7 @@
 
         .app {
             display: grid;
-            grid-template-columns: 80px 320px 1fr 360px;
+            grid-template-columns: 80px 320px 1fr 320px;
             height: 100vh;
             gap: 1px;
             background: var(--border-color);
@@ -82,7 +81,11 @@
             font-weight: 700;
             box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
             margin-bottom: 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
         }
+
+        .logo:hover { transform: scale(1.05); }
 
         .nav-icon {
             width: 48px;
@@ -96,6 +99,8 @@
             font-size: 20px;
             color: var(--text-tertiary);
             position: relative;
+            background: transparent;
+            border: none;
         }
 
         .nav-icon:hover {
@@ -121,11 +126,9 @@
             border: 2px solid var(--bg-secondary);
         }
 
-        .nav-spacer {
-            flex: 1;
-        }
+        .nav-spacer { flex: 1; }
 
-        /* Sidebar - Workspaces */
+        /* Sidebar */
         .sidebar-workspaces {
             background: var(--bg-secondary);
             padding: 24px 20px;
@@ -160,6 +163,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+            font-size: 18px;
         }
 
         .btn-icon:hover {
@@ -168,9 +172,7 @@
             transform: scale(1.05);
         }
 
-        .channel-group {
-            margin-bottom: 28px;
-        }
+        .channel-group { margin-bottom: 28px; }
 
         .channel-group-title {
             font-size: 11px;
@@ -180,6 +182,9 @@
             color: var(--text-tertiary);
             margin-bottom: 12px;
             padding-left: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .channel-item {
@@ -198,27 +203,21 @@
         .channel-item::before {
             content: '';
             position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
+            left: 0; top: 0; bottom: 0;
             width: 3px;
             background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
             opacity: 0;
             transition: opacity 0.2s;
         }
 
-        .channel-item:hover {
-            background: var(--glass-bg);
-        }
+        .channel-item:hover { background: var(--glass-bg); }
 
         .channel-item.active {
             background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
             border: 1px solid var(--glass-border);
         }
 
-        .channel-item.active::before {
-            opacity: 1;
-        }
+        .channel-item.active::before { opacity: 1; }
 
         .channel-icon {
             width: 36px;
@@ -229,20 +228,22 @@
             justify-content: center;
             font-size: 16px;
             background: var(--glass-bg);
+            flex-shrink: 0;
         }
 
         .channel-item.active .channel-icon {
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
         }
 
-        .channel-info {
-            flex: 1;
-        }
+        .channel-info { flex: 1; min-width: 0; }
 
         .channel-name {
             font-size: 14px;
             font-weight: 500;
             margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .channel-meta {
@@ -261,35 +262,32 @@
             text-align: center;
         }
 
-        .user-avatar-group {
-            display: flex;
-            margin-top: 8px;
-        }
-
-        .mini-avatar {
+        .add-member-btn {
             width: 24px;
             height: 24px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border: 2px solid var(--bg-secondary);
-            margin-left: -8px;
+            border-radius: 6px;
+            border: none;
+            background: var(--glass-bg);
+            color: var(--text-secondary);
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
-            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+            flex-shrink: 0;
         }
 
-        .mini-avatar:first-child {
-            margin-left: 0;
+        .add-member-btn:hover {
+            background: var(--accent-primary);
+            color: white;
         }
 
-        /* Main Chat Area */
+        /* Main Chat */
         .chat-main {
             background: var(--bg-primary);
             display: flex;
             flex-direction: column;
-            position: relative;
         }
 
         .chat-header {
@@ -313,10 +311,7 @@
             color: var(--text-secondary);
         }
 
-        .chat-actions {
-            display: flex;
-            gap: 12px;
-        }
+        .chat-actions { display: flex; gap: 12px; }
 
         .btn-action {
             padding: 10px 20px;
@@ -333,11 +328,16 @@
             transition: all 0.2s;
         }
 
-        .btn-action:hover {
+        .btn-action:hover:not(:disabled) {
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             border-color: transparent;
             transform: translateY(-2px);
             box-shadow: 0 8px 24px var(--accent-glow);
+        }
+
+        .btn-action:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
         }
 
         .btn-action.primary {
@@ -365,9 +365,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .message.own {
-            flex-direction: row-reverse;
-        }
+        .message.own { flex-direction: row-reverse; }
 
         .message-avatar {
             width: 44px;
@@ -381,6 +379,9 @@
             font-size: 16px;
             flex-shrink: 0;
             box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
         }
 
         .message-content {
@@ -404,9 +405,7 @@
             margin-bottom: 6px;
         }
 
-        .message.own .message-author {
-            color: #a5b4fc;
-        }
+        .message.own .message-author { color: #a5b4fc; }
 
         .message-text {
             font-size: 14px;
@@ -419,28 +418,6 @@
             color: var(--text-tertiary);
             margin-top: 8px;
             font-family: 'JetBrains Mono', monospace;
-        }
-
-        .message-reactions {
-            display: flex;
-            gap: 6px;
-            margin-top: 12px;
-        }
-
-        .reaction {
-            padding: 4px 10px;
-            background: var(--glass-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .reaction:hover {
-            background: var(--accent-primary);
-            border-color: var(--accent-primary);
-            transform: scale(1.05);
         }
 
         .input-container {
@@ -466,11 +443,7 @@
             box-shadow: 0 0 0 3px var(--accent-glow);
         }
 
-        .input-actions-left {
-            display: flex;
-            gap: 4px;
-            padding: 0 8px;
-        }
+        .input-actions-left { display: flex; gap: 4px; padding: 0 8px; }
 
         .input-btn {
             width: 36px;
@@ -502,15 +475,9 @@
             padding: 10px 12px;
         }
 
-        .message-input::placeholder {
-            color: var(--text-tertiary);
-        }
+        .message-input::placeholder { color: var(--text-tertiary); }
 
-        .input-actions-right {
-            display: flex;
-            gap: 8px;
-            padding-right: 8px;
-        }
+        .input-actions-right { display: flex; gap: 8px; padding-right: 8px; }
 
         .btn-send {
             width: 40px;
@@ -533,7 +500,7 @@
             box-shadow: 0 6px 24px rgba(99, 102, 241, 0.6);
         }
 
-        /* Right Sidebar */
+        /* Right Sidebar - Online Users */
         .sidebar-right {
             background: var(--bg-secondary);
             padding: 24px;
@@ -545,39 +512,66 @@
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 20px;
-            padding: 24px;
+            padding: 20px;
             margin-bottom: 24px;
             backdrop-filter: blur(12px);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .profile-card:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--accent-primary);
         }
 
         .profile-header {
             display: flex;
             align-items: center;
             gap: 16px;
-            margin-bottom: 20px;
         }
 
         .profile-avatar {
-            width: 64px;
-            height: 64px;
+            width: 56px;
+            height: 56px;
             border-radius: 16px;
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
             box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            position: relative;
         }
 
+        .profile-avatar::after {
+            content: '📷';
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 12px;
+            background: rgba(0,0,0,0.7);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-info { flex: 1; }
+
         .profile-info h3 {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
             margin-bottom: 4px;
         }
 
         .profile-info p {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-secondary);
         }
 
@@ -585,13 +579,14 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 12px;
+            padding: 4px 10px;
             background: rgba(16, 185, 129, 0.1);
             border: 1px solid rgba(16, 185, 129, 0.3);
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
             color: var(--success);
             font-weight: 600;
+            margin-top: 4px;
         }
 
         .status-badge::before {
@@ -603,38 +598,53 @@
             box-shadow: 0 0 12px var(--success);
         }
 
-        .activity-section {
-            margin-bottom: 24px;
+        .status-badge.offline {
+            background: rgba(113, 113, 122, 0.1);
+            border-color: rgba(113, 113, 122, 0.3);
+            color: var(--text-tertiary);
         }
 
+        .status-badge.offline::before {
+            background: var(--text-tertiary);
+            box-shadow: none;
+        }
+
+        .users-section { margin-bottom: 24px; }
+
         .section-title {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--text-tertiary);
-            margin-bottom: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .activity-item {
+        .online-count {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .user-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px;
-            background: var(--glass-bg);
+            padding: 10px 12px;
             border-radius: 12px;
-            margin-bottom: 8px;
-            border: 1px solid var(--border-color);
+            margin-bottom: 4px;
+            cursor: pointer;
             transition: all 0.2s;
         }
 
-        .activity-item:hover {
-            background: rgba(99, 102, 241, 0.1);
-            border-color: var(--accent-primary);
+        .user-item:hover {
+            background: var(--glass-bg);
             transform: translateX(4px);
         }
 
-        .activity-icon {
+        .user-avatar-small {
             width: 36px;
             height: 36px;
             border-radius: 10px;
@@ -642,76 +652,47 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
         }
 
-        .activity-info {
-            flex: 1;
+        .user-avatar-small .status-dot {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--bg-secondary);
         }
 
-        .activity-title {
+        .user-avatar-small .status-dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
+        .user-avatar-small .status-dot.offline { background: var(--text-tertiary); }
+        .user-avatar-small .status-dot.away { background: var(--warning); }
+
+        .user-item-info { flex: 1; min-width: 0; }
+
+        .user-item-name {
             font-size: 13px;
             font-weight: 600;
-            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .activity-meta {
+        .user-item-status {
             font-size: 11px;
             color: var(--text-tertiary);
         }
 
-        .pinned-section {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 20px;
-            backdrop-filter: blur(12px);
-        }
+        .user-item-status.online-text { color: var(--success); }
 
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: var(--bg-tertiary);
-            border-radius: 12px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .file-item:hover {
-            background: rgba(99, 102, 241, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .file-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        .file-info {
-            flex: 1;
-        }
-
-        .file-name {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .file-size {
-            font-size: 11px;
-            color: var(--text-tertiary);
-        }
-
-        /* Modal Styles */
+        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -733,6 +714,8 @@
             width: 90%;
             max-width: 450px;
             box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-content h3 {
@@ -741,7 +724,8 @@
             margin-bottom: 20px;
         }
 
-        .modal-content input {
+        .modal-content input[type="text"],
+        .modal-content input[type="email"] {
             width: 100%;
             padding: 14px 18px;
             background: var(--bg-tertiary);
@@ -749,7 +733,7 @@
             border-radius: 12px;
             color: var(--text-primary);
             font-size: 14px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             outline: none;
             transition: all 0.2s;
         }
@@ -759,10 +743,7 @@
             box-shadow: 0 0 0 3px var(--accent-glow);
         }
 
-        .modal-buttons {
-            display: flex;
-            gap: 12px;
-        }
+        .modal-buttons { display: flex; gap: 12px; }
 
         .modal-buttons button {
             flex: 1;
@@ -786,8 +767,97 @@
             color: white;
         }
 
-        .btn-cancel:hover, .btn-confirm:hover {
-            transform: translateY(-2px);
+        .btn-cancel:hover, .btn-confirm:hover { transform: translateY(-2px); }
+
+        /* Add Members Modal */
+        .friend-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .friend-checkbox-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--accent-primary);
+        }
+
+        .friend-checkbox-item.selected {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--accent-primary);
+        }
+
+        .friend-checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--accent-primary);
+            cursor: pointer;
+        }
+
+        .friend-checkbox-info { flex: 1; }
+
+        .friend-checkbox-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .friend-checkbox-email {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* Avatar Upload */
+        .avatar-upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 700;
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .avatar-preview:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.5);
+        }
+
+        .avatar-upload-btn {
+            padding: 10px 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .avatar-upload-btn:hover {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
         }
 
         /* Call Modal */
@@ -834,6 +904,9 @@
             margin: 0 auto 28px;
             box-shadow: 0 16px 48px rgba(99, 102, 241, 0.4);
             animation: callPulse 2s infinite;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
         }
 
         @keyframes callPulse {
@@ -858,11 +931,7 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .call-controls {
-            display: flex;
-            gap: 24px;
-            justify-content: center;
-        }
+        .call-controls { display: flex; gap: 24px; justify-content: center; }
 
         .call-btn {
             width: 72px;
@@ -878,9 +947,7 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
-        .call-btn:hover {
-            transform: scale(1.1);
-        }
+        .call-btn:hover { transform: scale(1.1); }
 
         .btn-mute {
             background: var(--glass-bg);
@@ -888,17 +955,14 @@
             border: 1px solid var(--glass-border);
         }
 
-        .btn-mute.muted {
-            background: var(--warning);
-            color: white;
-        }
+        .btn-mute.muted { background: var(--warning); color: white; }
 
         .btn-end-call {
             background: linear-gradient(135deg, var(--danger), #dc2626);
             color: white;
         }
 
-        /* Incoming Call Modal */
+        /* Incoming Call */
         .incoming-call-modal {
             display: none;
             position: fixed;
@@ -942,6 +1006,9 @@
             margin: 0 auto 28px;
             border: 4px solid rgba(255, 255, 255, 0.1);
             animation: incomingPulse 1.5s infinite;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
         }
 
         @keyframes incomingPulse {
@@ -972,11 +1039,7 @@
             margin-bottom: 48px;
         }
 
-        .incoming-controls {
-            display: flex;
-            gap: 48px;
-            justify-content: center;
-        }
+        .incoming-controls { display: flex; gap: 48px; justify-content: center; }
 
         .incoming-btn {
             display: flex;
@@ -987,9 +1050,7 @@
             transition: transform 0.2s;
         }
 
-        .incoming-btn:hover {
-            transform: scale(1.1);
-        }
+        .incoming-btn:hover { transform: scale(1.1); }
 
         .incoming-btn-circle {
             width: 80px;
@@ -1005,15 +1066,8 @@
             transition: all 0.2s;
         }
 
-        .btn-accept {
-            background: linear-gradient(135deg, var(--success), #059669);
-            color: white;
-        }
-
-        .btn-decline {
-            background: linear-gradient(135deg, var(--danger), #dc2626);
-            color: white;
-        }
+        .btn-accept { background: linear-gradient(135deg, var(--success), #059669); color: white; }
+        .btn-decline { background: linear-gradient(135deg, var(--danger), #dc2626); color: white; }
 
         .incoming-btn-label {
             font-size: 13px;
@@ -1021,54 +1075,32 @@
             color: var(--text-secondary);
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
 
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-primary);
-        }
-
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .app { grid-template-columns: 80px 280px 1fr 320px; }
-        }
-
-        @media (max-width: 900px) {
-            .app { grid-template-columns: 80px 1fr; }
-            .sidebar-workspaces, .sidebar-right { display: none; }
-        }
+        @media (max-width: 1200px) { .app { grid-template-columns: 80px 280px 1fr 280px; } }
+        @media (max-width: 900px) { .app { grid-template-columns: 80px 1fr; } .sidebar-workspaces, .sidebar-right { display: none; } }
     </style>
 </head>
 <body>
     <div class="app">
-        <!-- Left Navigation -->
         <nav class="nav-left">
             <div class="logo">S</div>
-            <div class="nav-icon active" title="Messages">💬</div>
-            <div class="nav-icon" title="Teams">👥</div>
-            <div class="nav-icon" title="Calendar">📅</div>
-            <div class="nav-icon" title="Files">📁</div>
-            <div class="nav-icon" title="Analytics">📊</div>
+            <button class="nav-icon active" title="Messages" onclick="switchNav(this, 'messages')"></button>
+            <button class="nav-icon" title="Teams" onclick="switchNav(this, 'teams')">👥</button>
+            <button class="nav-icon" title="Calendar" onclick="switchNav(this, 'calendar')">📅</button>
+            <button class="nav-icon" title="Files" onclick="switchNav(this, 'files')"></button>
             <div class="nav-spacer"></div>
-            <div class="nav-icon" onclick="showLogoutModal()" title="Logout"></div>
+            <button class="nav-icon" onclick="showProfileModal()" title="Profile">👤</button>
+            <button class="nav-icon" onclick="showLogoutModal()" title="Logout"></button>
         </nav>
 
-        <!-- Sidebar - Workspaces -->
         <div class="sidebar-workspaces">
             <div class="workspace-header">
                 <div class="workspace-title">Sniggers</div>
-                <button class="btn-icon" onclick="showModal()">+</button>
+                <button class="btn-icon" onclick="showModal()" title="Create channel">+</button>
             </div>
 
             <div class="channel-group">
@@ -1082,7 +1114,6 @@
             </div>
         </div>
 
-        <!-- Main Chat Area -->
         <main class="chat-main">
             <div class="chat-header">
                 <div class="chat-header-info">
@@ -1090,12 +1121,9 @@
                     <p id="chatInfo">Start a conversation</p>
                 </div>
                 <div class="chat-actions">
-                    <button class="btn-action" id="callBtn" onclick="startCall()" disabled>
-                         Voice Call
-                    </button>
-                    <button class="btn-action primary">
-                        ⚙️ Settings
-                    </button>
+                    <button class="btn-action" id="callBtn" onclick="startCall()" disabled>📞 Voice Call</button>
+                    <button class="btn-action" onclick="showAddMemberModal()" id="addMemberBtn" style="display:none;">👥 Add Members</button>
+                    <button class="btn-action primary" onclick="showProfileModal()">️ Profile</button>
                 </div>
             </div>
 
@@ -1110,61 +1138,48 @@
             <div class="input-container">
                 <div class="input-wrapper">
                     <div class="input-actions-left">
-                        <button class="input-btn">😊</button>
-                        <button class="input-btn">📎</button>
+                        <button class="input-btn" title="Emoji">😊</button>
+                        <button class="input-btn" title="Attach">📎</button>
                     </div>
                     <input type="text" class="message-input" id="msgInput" placeholder="Message..." onkeypress="handleKey(event)">
                     <div class="input-actions-right">
-                        <button class="btn-send" onclick="sendMsg()">➤</button>
+                        <button class="btn-send" onclick="sendMsg()" title="Send">➤</button>
                     </div>
                 </div>
             </div>
         </main>
 
-        <!-- Right Sidebar -->
         <aside class="sidebar-right">
-            <div class="profile-card">
+            <div class="profile-card" onclick="showProfileModal()">
                 <div class="profile-header">
                     <div class="profile-avatar" id="userAvatar">?</div>
                     <div class="profile-info">
                         <h3 id="userName">Loading...</h3>
+                        <p id="userEmail">loading...</p>
                         <div class="status-badge">Online</div>
                     </div>
                 </div>
             </div>
 
-            <div class="activity-section">
-                <div class="section-title">Activity</div>
-                <div class="activity-item">
-                    <div class="activity-icon"></div>
-                    <div class="activity-info">
-                        <div class="activity-title">Active now</div>
-                        <div class="activity-meta">In Product Talk</div>
-                    </div>
+            <div class="users-section">
+                <div class="section-title">
+                    <span>Online Now</span>
+                    <span class="online-count" id="onlineCount">0</span>
                 </div>
+                <div id="onlineUsersList"></div>
             </div>
 
-            <div class="pinned-section">
-                <div class="section-title">Pinned Files</div>
-                <div class="file-item">
-                    <div class="file-icon">📄</div>
-                    <div class="file-info">
-                        <div class="file-name">Dashboard_v3.fig</div>
-                        <div class="file-size">24.6 MB • Figma</div>
-                    </div>
+            <div class="users-section">
+                <div class="section-title">
+                    <span>Offline</span>
+                    <span id="offlineCount">0</span>
                 </div>
-                <div class="file-item">
-                    <div class="file-icon">📊</div>
-                    <div class="file-info">
-                        <div class="file-name">Q2 Roadmap</div>
-                        <div class="file-size">2.1 MB • Notion</div>
-                    </div>
-                </div>
+                <div id="offlineUsersList"></div>
             </div>
         </aside>
     </div>
 
-    <!-- Modals -->
+    <!-- Create Channel Modal -->
     <div class="modal" id="modal">
         <div class="modal-content">
             <h3>Create Channel</h3>
@@ -1176,6 +1191,7 @@
         </div>
     </div>
 
+    <!-- Logout Modal -->
     <div class="modal" id="logoutModal">
         <div class="modal-content">
             <h3>Logout?</h3>
@@ -1187,6 +1203,41 @@
         </div>
     </div>
 
+    <!-- Profile / Avatar Modal -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <h3>Your Profile</h3>
+            <div class="avatar-upload-area">
+                <div class="avatar-preview" id="avatarPreview" onclick="document.getElementById('avatarInput').click()">?</div>
+                <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)">
+                <button class="avatar-upload-btn" onclick="document.getElementById('avatarInput').click()">📷 Change Avatar</button>
+                <p style="font-size: 11px; color: var(--text-tertiary); text-align: center;">Click to upload from your device</p>
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; display: block;">Display Name</label>
+                <input type="text" id="profileName" placeholder="Your name">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="hideProfileModal()">Cancel</button>
+                <button class="btn-confirm" onclick="saveProfile()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Members to Channel Modal -->
+    <div class="modal" id="addMemberModal">
+        <div class="modal-content">
+            <h3>Add Members to Channel</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 13px;">Select friends to add to <strong id="targetChannelName"></strong></p>
+            <div id="friendsCheckboxesList" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;"></div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="hideAddMemberModal()">Cancel</button>
+                <button class="btn-confirm" onclick="addMembersToChannel()">Add Selected</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call Modal -->
     <div class="call-modal" id="callModal">
         <div class="call-content">
             <div class="call-avatar" id="callAvatar">?</div>
@@ -1199,15 +1250,16 @@
         </div>
     </div>
 
+    <!-- Incoming Call Modal -->
     <div class="incoming-call-modal" id="incomingCallModal">
         <div class="incoming-call-content">
             <div class="incoming-avatar" id="incomingAvatar">?</div>
             <div class="incoming-label">Incoming Call</div>
             <div class="incoming-name" id="incomingName">User</div>
-            <div class="incoming-type"> Voice Call</div>
+            <div class="incoming-type">🎤 Voice Call</div>
             <div class="incoming-controls">
                 <div class="incoming-btn" onclick="declineIncomingCall()">
-                    <button class="incoming-btn-circle btn-decline">✕</button>
+                    <button class="incoming-btn-circle btn-decline"></button>
                     <div class="incoming-btn-label">Decline</div>
                 </div>
                 <div class="incoming-btn" onclick="acceptIncomingCall()">
@@ -1241,9 +1293,11 @@
         let currentChat = null;
         let currentChatType = null;
         let currentChatName = null;
+        let currentChannelId = null;
         let unsubscribe = null;
         let callUnsubscribe = null;
         let incomingCallUnsubscribe = null;
+        let usersUnsubscribe = null;
 
         let localStream = null;
         let peerConnection = null;
@@ -1252,6 +1306,7 @@
         let callRecipientId = null;
         let callId = null;
         let pendingIncomingCall = null;
+        let currentUserData = null;
 
         const rtcConfig = {
             iceServers: [
@@ -1270,16 +1325,72 @@
             googHighpassFilter: true
         };
 
+        // Listen to all users for online status
+        function listenToUsers() {
+            if (usersUnsubscribe) usersUnsubscribe();
+            
+            const usersRef = collection(db, 'users');
+            usersUnsubscribe = onSnapshot(usersRef, (snapshot) => {
+                const onlineList = document.getElementById('onlineUsersList');
+                const offlineList = document.getElementById('offlineUsersList');
+                onlineList.innerHTML = '';
+                offlineList.innerHTML = '';
+                
+                let onlineCount = 0;
+                let offlineCount = 0;
+                
+                snapshot.forEach((docSnap) => {
+                    const user = docSnap.data();
+                    const uid = docSnap.id;
+                    
+                    // Skip current user
+                    if (uid === currentUser.uid) return;
+                    
+                    const isOnline = user.status === 'online';
+                    const avatarStyle = user.avatar ? `background-image: url(${user.avatar});` : '';
+                    const initial = (user.name || '?').charAt(0).toUpperCase();
+                    
+                    const item = document.createElement('div');
+                    item.className = 'user-item';
+                    item.innerHTML = `
+                        <div class="user-avatar-small" style="${avatarStyle}">
+                            ${!user.avatar ? initial : ''}
+                            <div class="status-dot ${isOnline ? 'online' : 'offline'}"></div>
+                        </div>
+                        <div class="user-item-info">
+                            <div class="user-item-name">${user.name || 'Unknown'}</div>
+                            <div class="user-item-status ${isOnline ? 'online-text' : ''}">${isOnline ? 'Online' : 'Offline'}</div>
+                        </div>
+                    `;
+                    item.onclick = () => openDirectMessage(uid, user.name);
+                    
+                    if (isOnline) {
+                        onlineList.appendChild(item);
+                        onlineCount++;
+                    } else {
+                        offlineList.appendChild(item);
+                        offlineCount++;
+                    }
+                });
+                
+                document.getElementById('onlineCount').textContent = onlineCount;
+                document.getElementById('offlineCount').textContent = offlineCount;
+            });
+        }
+
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
             currentUser = user;
             try {
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 let displayName = user.displayName;
+                let avatar = null;
 
                 if (userDoc.exists()) {
                     const data = userDoc.data();
+                    currentUserData = data;
                     displayName = data.name || user.displayName || user.email.split('@')[0] || 'User';
+                    avatar = data.avatar || null;
                     if (!data.name && user.displayName) {
                         await updateDoc(doc(db, 'users', user.uid), { name: user.displayName });
                     }
@@ -1287,12 +1398,21 @@
                     displayName = user.displayName || user.email.split('@')[0] || 'User';
                     await setDoc(doc(db, 'users', user.uid), {
                         uid: user.uid, name: displayName, email: user.email,
-                        friends: [], channels: ['general'], status: 'online'
+                        friends: [], channels: ['general'], status: 'online', avatar: null
                     });
+                    currentUserData = { name: displayName, email: user.email, avatar: null };
                 }
 
                 document.getElementById('userName').textContent = displayName;
-                document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+                document.getElementById('userEmail').textContent = user.email;
+                
+                const avatarEl = document.getElementById('userAvatar');
+                if (avatar) {
+                    avatarEl.style.backgroundImage = `url(${avatar})`;
+                    avatarEl.textContent = '';
+                } else {
+                    avatarEl.textContent = displayName.charAt(0).toUpperCase();
+                }
                 
                 const finalDoc = await getDoc(doc(db, 'users', user.uid));
                 const finalData = finalDoc.data();
@@ -1301,6 +1421,7 @@
                 await updateDoc(doc(db, 'users', user.uid), { status: 'online' });
 
                 listenForCalls();
+                listenToUsers();
 
             } catch (error) {
                 console.error("Data load error:", error);
@@ -1320,10 +1441,14 @@
                     <div class="channel-icon">#</div>
                     <div class="channel-info">
                         <div class="channel-name">${id}</div>
-                        <div class="channel-meta">5 members</div>
+                        <div class="channel-meta">Channel</div>
                     </div>
+                    <button class="add-member-btn" onclick="openAddMemberModal('${id}', event)" title="Add members">+</button>
                 `;
-                div.onclick = function() { openChat(id, 'channel'); };
+                div.onclick = function(e) { 
+                    if (e.target.classList.contains('add-member-btn')) return;
+                    openChat(id, 'channel'); 
+                };
                 container.appendChild(div);
             });
         }
@@ -1336,10 +1461,13 @@
                     const fdoc = await getDoc(doc(db, 'users', fid));
                     if (fdoc.exists()) {
                         const fdata = fdoc.data();
+                        const avatarStyle = fdata.avatar ? `background-image: url(${fdata.avatar});` : '';
                         const div = document.createElement('div');
                         div.className = 'channel-item';
                         div.innerHTML = `
-                            <div class="channel-icon" style="background: linear-gradient(135deg, #10b981, #059669);">${fdata.name.charAt(0).toUpperCase()}</div>
+                            <div class="channel-icon" style="background: linear-gradient(135deg, #10b981, #059669); ${avatarStyle}">
+                                ${!fdata.avatar ? fdata.name.charAt(0).toUpperCase() : ''}
+                            </div>
                             <div class="channel-info">
                                 <div class="channel-name">${fdata.name}</div>
                                 <div class="channel-meta">Direct message</div>
@@ -1352,19 +1480,28 @@
             }
         }
 
+        window.openDirectMessage = function(uid, name) {
+            // Check if already in friends, if not - open chat anyway
+            openChat(uid, 'friend', name);
+        };
+
         window.openChat = async function(id, type, name = null) {
             currentChat = id; currentChatType = type; currentChatName = name;
+            currentChannelId = type === 'channel' ? id : null;
+            
             document.querySelectorAll('.channel-item').forEach(i => i.classList.remove('active'));
             event.currentTarget.classList.add('active');
             
             if (type === 'channel') {
                 document.getElementById('chatName').textContent = '#' + id;
-                document.getElementById('chatInfo').textContent = 'Channel • 5 members';
+                document.getElementById('chatInfo').textContent = 'Channel';
                 document.getElementById('callBtn').disabled = true;
+                document.getElementById('addMemberBtn').style.display = 'flex';
             } else {
                 document.getElementById('chatName').textContent = name;
                 document.getElementById('chatInfo').textContent = 'Direct message';
                 document.getElementById('callBtn').disabled = false;
+                document.getElementById('addMemberBtn').style.display = 'none';
             }
             loadMessages(id, type);
         };
@@ -1381,10 +1518,19 @@
                     const m = d.data();
                     const time = m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}) : '';
                     const isOwn = m.senderId === currentUser.uid;
+                    
+                    // Get avatar from sender
+                    let avatarHtml = m.senderName.charAt(0).toUpperCase();
+                    let avatarStyle = '';
+                    if (m.senderAvatar) {
+                        avatarStyle = `background-image: url(${m.senderAvatar});`;
+                        avatarHtml = '';
+                    }
+                    
                     const msg = document.createElement('div');
                     msg.className = 'message' + (isOwn ? ' own' : '');
                     msg.innerHTML = `
-                        <div class="message-avatar">${m.senderName.charAt(0).toUpperCase()}</div>
+                        <div class="message-avatar" style="${avatarStyle}">${avatarHtml}</div>
                         <div class="message-content">
                             <div class="message-author">${m.senderName}</div>
                             <div class="message-text">${m.text}</div>
@@ -1404,8 +1550,11 @@
             const chatIdStr = currentChatType === 'channel' ? 'channel_' + currentChat : 'dm_' + [currentUser.uid, currentChat].sort().join('_');
             try {
                 await addDoc(collection(db, 'chats', chatIdStr, 'messages'), {
-                    text: text, senderId: currentUser.uid,
-                    senderName: currentUser.displayName || 'User', timestamp: serverTimestamp()
+                    text: text, 
+                    senderId: currentUser.uid,
+                    senderName: currentUserData?.name || currentUser.displayName || 'User',
+                    senderAvatar: currentUserData?.avatar || null,
+                    timestamp: serverTimestamp()
                 });
                 input.value = '';
             } catch (error) { console.error('Send error:', error); alert('Send error: ' + error.message); }
@@ -1413,6 +1562,152 @@
 
         window.handleKey = function(e) { if (e.key === 'Enter') sendMsg(); };
 
+        // Navigation
+        window.switchNav = function(el, section) {
+            document.querySelectorAll('.nav-icon').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            // Future: implement different views
+            console.log('Switched to:', section);
+        };
+
+        // Profile Modal
+        window.showProfileModal = function() {
+            document.getElementById('profileName').value = currentUserData?.name || currentUser.displayName || '';
+            const preview = document.getElementById('avatarPreview');
+            if (currentUserData?.avatar) {
+                preview.style.backgroundImage = `url(${currentUserData.avatar})`;
+                preview.textContent = '';
+            } else {
+                preview.style.backgroundImage = '';
+                preview.textContent = (currentUserData?.name || '?').charAt(0).toUpperCase();
+            }
+            document.getElementById('profileModal').classList.add('show');
+        };
+
+        window.hideProfileModal = function() { document.getElementById('profileModal').classList.remove('show'); };
+
+        window.handleAvatarUpload = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Check file size (max 1MB for Firestore)
+            if (file.size > 1000000) {
+                alert('File is too large! Max 1MB.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                document.getElementById('avatarPreview').style.backgroundImage = `url(${dataUrl})`;
+                document.getElementById('avatarPreview').textContent = '';
+                document.getElementById('avatarPreview').dataset.newAvatar = dataUrl;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.saveProfile = async function() {
+            const newName = document.getElementById('profileName').value.trim();
+            const newAvatar = document.getElementById('avatarPreview').dataset.newAvatar || currentUserData?.avatar || null;
+            
+            if (!newName) { alert('Name cannot be empty'); return; }
+            
+            try {
+                await updateDoc(doc(db, 'users', currentUser.uid), {
+                    name: newName,
+                    avatar: newAvatar
+                });
+                currentUserData = { ...currentUserData, name: newName, avatar: newAvatar };
+                
+                document.getElementById('userName').textContent = newName;
+                const avatarEl = document.getElementById('userAvatar');
+                if (newAvatar) {
+                    avatarEl.style.backgroundImage = `url(${newAvatar})`;
+                    avatarEl.textContent = '';
+                } else {
+                    avatarEl.style.backgroundImage = '';
+                    avatarEl.textContent = newName.charAt(0).toUpperCase();
+                }
+                
+                hideProfileModal();
+                alert('Profile saved!');
+            } catch (error) {
+                console.error('Save profile error:', error);
+                alert('Error: ' + error.message);
+            }
+        };
+
+        // Add Members Modal
+        window.showAddMemberModal = function() {
+            if (!currentChannelId) return;
+            openAddMemberModal(currentChannelId);
+        };
+
+        window.openAddMemberModal = function(channelId, event) {
+            if (event) event.stopPropagation();
+            currentChannelId = channelId;
+            document.getElementById('targetChannelName').textContent = '#' + channelId;
+            
+            // Load friends
+            const container = document.getElementById('friendsCheckboxesList');
+            container.innerHTML = '<p style="color: var(--text-tertiary); text-align: center;">Loading...</p>';
+            
+            getDoc(doc(db, 'users', currentUser.uid)).then(async (userDoc) => {
+                const friends = userDoc.data().friends || [];
+                container.innerHTML = '';
+                
+                if (friends.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-tertiary); text-align: center; padding: 20px;">No friends yet. Add friends first!</p>';
+                    return;
+                }
+                
+                for (const fid of friends) {
+                    const fdoc = await getDoc(doc(db, 'users', fid));
+                    if (fdoc.exists()) {
+                        const fdata = fdoc.data();
+                        const item = document.createElement('label');
+                        item.className = 'friend-checkbox-item';
+                        item.innerHTML = `
+                            <input type="checkbox" value="${fid}">
+                            <div class="friend-checkbox-info">
+                                <div class="friend-checkbox-name">${fdata.name}</div>
+                                <div class="friend-checkbox-email">${fdata.email || ''}</div>
+                            </div>
+                        `;
+                        item.querySelector('input').onchange = function() {
+                            item.classList.toggle('selected', this.checked);
+                        };
+                        container.appendChild(item);
+                    }
+                }
+            });
+            
+            document.getElementById('addMemberModal').classList.add('show');
+        };
+
+        window.hideAddMemberModal = function() { document.getElementById('addMemberModal').classList.remove('show'); };
+
+        window.addMembersToChannel = async function() {
+            const checkboxes = document.querySelectorAll('#friendsCheckboxesList input[type="checkbox"]:checked');
+            if (checkboxes.length === 0) { alert('Select at least one friend'); return; }
+            
+            try {
+                for (const cb of checkboxes) {
+                    const friendId = cb.value;
+                    // Add channel to friend's channels
+                    await updateDoc(doc(db, 'users', friendId), { channels: arrayUnion(currentChannelId) });
+                    // Add friend to channel members
+                    await updateDoc(doc(db, 'channels', currentChannelId), { members: arrayUnion(friendId) }).catch(() => {});
+                }
+                alert(`Added ${checkboxes.length} member(s) to #${currentChannelId}!`);
+                hideAddMemberModal();
+            } catch (error) {
+                console.error('Add members error:', error);
+                alert('Error: ' + error.message);
+            }
+        };
+
+        // Channel creation
         window.showModal = function() { document.getElementById('modal').classList.add('show'); };
         window.hideModal = function() { document.getElementById('modal').classList.remove('show'); };
         window.showLogoutModal = function() { document.getElementById('logoutModal').classList.add('show'); };
@@ -1439,7 +1734,7 @@
             } catch (error) { console.error('Channel create error:', error); alert('Error: ' + error.message); }
         };
 
-        // Voice call functions (same as before)
+        // Voice calls
         window.startCall = async function() {
             if (!currentChat || currentChatType !== 'friend') { alert('Voice calls available only in direct messages'); return; }
             if (isCallActive) { alert('Already in a call!'); return; }
@@ -1458,7 +1753,7 @@
                 await peerConnection.setLocalDescription(offer);
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 await setDoc(doc(db, 'calls', callId), {
-                    callerId: currentUser.uid, callerName: currentUser.displayName,
+                    callerId: currentUser.uid, callerName: currentUserData?.name || currentUser.displayName,
                     recipientId: callRecipientId, status: 'ringing', timestamp: serverTimestamp(),
                     offer: { sdp: peerConnection.localDescription.sdp, type: peerConnection.localDescription.type }
                 });
