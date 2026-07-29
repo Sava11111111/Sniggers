@@ -333,6 +333,18 @@
             ]
         };
 
+        // 🔊 НАСТРОЙКИ АУДИО ДЛЯ ШУМОПОДАВЛЕНИЯ
+        const audioConstraints = {
+            noiseSuppression: true,       // Подавление фонового шума
+            echoCancellation: true,       // Подавление эха (чтобы микрофон не ловил звук из динамиков)
+            autoGainControl: true,        // Автоматическая регулировка громкости
+            // Дополнительные флаги для лучшей совместимости с Chrome/Edge
+            googEchoCancellation: true,
+            googAutoGainControl: true,
+            googNoiseSuppression: true,
+            googHighpassFilter: true      // Фильтр низких частот (убирает гул)
+        };
+
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
             currentUser = user;
@@ -572,7 +584,11 @@
             callId = 'call_' + [currentUser.uid, callRecipientId].sort().join('_');
 
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                // 🔊 ЗАХВАТ МИКРОФОНА С ШУМОПОДАВЛЕНИЕМ
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: audioConstraints, 
+                    video: false 
+                });
                 
                 document.getElementById('callModal').classList.add('show');
                 document.getElementById('callName').textContent = currentChatName;
@@ -694,13 +710,10 @@
             });
         }
 
-        // === ВОТ ЗДЕСЬ НОВАЯ ФУНКЦИЯ ===
         function listenForCalls() {
             console.log('Starting to listen for incoming calls for user:', currentUser.uid);
-            
             const callsRef = collection(db, 'calls');
             
-            // Слушаем ВСЮ коллекцию calls и фильтруем на клиенте
             incomingCallUnsubscribe = onSnapshot(callsRef, async (snapshot) => {
                 console.log('Calls snapshot received, docs count:', snapshot.docs.length);
                 
@@ -710,13 +723,11 @@
                     
                     console.log('Checking call:', docId, 'status:', callData.status, 'recipient:', callData.recipientId);
                     
-                    // Проверяем что это звонок для нас, в статусе ringing, и не от нас
                     if (callData.recipientId === currentUser.uid && 
                         callData.status === 'ringing' && 
                         callData.callerId !== currentUser.uid && 
                         !isCallActive) {
                         
-                        // Если уже показываем это окно — пропускаем
                         if (pendingIncomingCall && pendingIncomingCall.docId === docId) {
                             console.log('Already showing incoming call for:', docId);
                             return;
@@ -747,7 +758,6 @@
                         document.getElementById('incomingAvatar').textContent = callerName.charAt(0).toUpperCase();
                         document.getElementById('incomingCallModal').classList.add('show');
 
-                        // Автоотклонение через 30 секунд
                         setTimeout(() => {
                             if (pendingIncomingCall && pendingIncomingCall.docId === docId) {
                                 getDoc(doc(db, 'calls', docId)).then((d) => {
@@ -765,7 +775,6 @@
                 console.error('Error listening for calls:', error);
             });
         }
-        // ================================
 
         window.acceptIncomingCall = async function() {
             if (!pendingIncomingCall) return;
@@ -779,7 +788,11 @@
             callRecipientId = callerId;
 
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                // 🔊 ЗАХВАТ МИКРОФОНА С ШУМОПОДАВЛЕНИЕМ
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: audioConstraints, 
+                    video: false 
+                });
                 
                 document.getElementById('callModal').classList.add('show');
                 document.getElementById('callName').textContent = pendingIncomingCall.callerName;
