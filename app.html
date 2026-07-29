@@ -66,7 +66,6 @@
             z-index: 1;
         }
 
-        /* Left Navigation - Desktop */
         .nav-left {
             background: var(--bg-secondary);
             display: flex;
@@ -881,7 +880,6 @@
             font-size: 13px;
         }
 
-        /* Mobile Bottom Navigation */
         .mobile-nav {
             display: none;
             position: fixed;
@@ -966,7 +964,6 @@
             font-size: 20px;
         }
 
-        /* Mobile Sidebar */
         .mobile-sidebar {
             display: none;
             position: fixed;
@@ -1002,7 +999,6 @@
             display: block;
         }
 
-        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -1602,7 +1598,6 @@
         }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
 
-        /* MOBILE RESPONSIVE STYLES */
         @media (max-width: 1200px) {
             .app { grid-template-columns: 72px 260px 1fr 260px; }
         }
@@ -1610,27 +1605,66 @@
         @media (max-width: 900px) {
             .app {
                 grid-template-columns: 1fr;
-                padding-bottom: 70px;
+                padding-bottom: 80px;
+                padding-top: 60px;
             }
             
             .nav-left, .sidebar-workspaces, .sidebar-right {
-                display: none;
+                display: none !important;
             }
             
             .mobile-nav, .mobile-header {
-                display: block;
+                display: block !important;
+            }
+            
+            .chat-main {
+                display: flex !important;
+                z-index: 10;
+                position: relative;
             }
             
             .chat-header {
-                padding: 70px 16px 16px;
+                padding: 12px 16px;
+                z-index: 11;
             }
             
             .messages-area {
                 padding: 16px;
+                flex: 1;
+                overflow-y: auto;
             }
             
             .input-container {
-                padding: 16px;
+                padding: 12px 16px;
+                z-index: 12;
+                position: relative;
+                background: var(--bg-primary);
+            }
+            
+            .input-wrapper {
+                position: relative;
+                z-index: 13;
+            }
+            
+            .message-input {
+                font-size: 16px !important;
+                min-height: 44px;
+                cursor: text;
+                -webkit-appearance: none;
+            }
+            
+            .message-input:focus {
+                outline: none;
+            }
+            
+            .btn-send {
+                min-width: 44px;
+                min-height: 44px;
+            }
+            
+            .input-btn {
+                min-width: 44px;
+                min-height: 44px;
             }
             
             .message-content {
@@ -1656,7 +1690,7 @@
 
         @media (max-width: 480px) {
             .chat-header {
-                padding: 70px 12px 12px;
+                padding: 10px 12px;
             }
             
             .messages-area {
@@ -1664,7 +1698,7 @@
             }
             
             .input-container {
-                padding: 12px;
+                padding: 10px 12px;
             }
             
             .message-content {
@@ -1717,7 +1751,6 @@
     </style>
 </head>
 <body>
-    <!-- Mobile Header -->
     <div class="mobile-header">
         <div class="mobile-header-content">
             <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">☰</button>
@@ -1726,7 +1759,6 @@
         </div>
     </div>
 
-    <!-- Mobile Sidebar -->
     <div class="mobile-sidebar-overlay" onclick="toggleMobileSidebar()"></div>
     <div class="mobile-sidebar" id="mobileSidebar">
         <div class="profile-card" onclick="showMyProfileModal(); toggleMobileSidebar();">
@@ -1777,7 +1809,7 @@
         <nav class="nav-left">
             <div class="logo">S</div>
             <button class="nav-icon active" title="Messages" onclick="switchNav(this, 'messages')">💬</button>
-            <button class="nav-icon" title="Teams" onclick="switchNav(this, 'teams')">👥</button>
+            <button class="nav-icon" title="Teams" onclick="switchNav(this, 'teams')"></button>
             <button class="nav-icon" title="Calendar" onclick="switchNav(this, 'calendar')"></button>
             <button class="nav-icon" title="Files" onclick="switchNav(this, 'files')">📁</button>
             <div class="nav-spacer"></div>
@@ -1809,7 +1841,7 @@
                     <p id="chatInfo">Start a conversation</p>
                 </div>
                 <div class="chat-actions">
-                    <button class="btn-action" id="callBtn" onclick="startCall()" disabled>📞 Voice Call</button>
+                    <button class="btn-action" id="callBtn" onclick="startCall()" disabled> Voice Call</button>
                     <button class="btn-action" onclick="showAddMemberModal()" id="addMemberBtn" style="display:none;">👥 Add Members</button>
                 </div>
             </div>
@@ -1882,7 +1914,6 @@
         </aside>
     </div>
 
-    <!-- Mobile Bottom Navigation -->
     <div class="mobile-nav">
         <div class="mobile-nav-items">
             <button class="mobile-nav-item active" onclick="switchMobileNav(this, 'chat')">
@@ -1894,13 +1925,12 @@
                 <span class="label">Contacts</span>
             </button>
             <button class="mobile-nav-item" onclick="showMyProfileModal()">
-                <span class="icon">👤</span>
+                <span class="icon"></span>
                 <span class="label">Profile</span>
             </button>
         </div>
     </div>
 
-    <!-- Modals -->
     <div class="modal" id="modal">
         <div class="modal-content">
             <h3>Create Channel</h3>
@@ -1953,7 +1983,7 @@
                 <div class="email" id="userProfileEmail">user@email.com</div>
                 <div class="profile-status" id="userProfileStatus">Online</div>
                 <div class="profile-actions">
-                    <button class="profile-action-btn primary" onclick="messageUser()">💬 Message</button>
+                    <button class="profile-action-btn primary" onclick="messageUser()"> Message</button>
                     <button class="profile-action-btn secondary" onclick="callUser()">📞 Call</button>
                 </div>
             </div>
@@ -2060,12 +2090,10 @@
             googHighpassFilter: true
         };
 
-        // Check if mobile device
         function isMobileDevice() {
             return window.innerWidth <= 900 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
 
-        // Toggle mobile sidebar
         window.toggleMobileSidebar = function() {
             const sidebar = document.getElementById('mobileSidebar');
             const overlay = document.querySelector('.mobile-sidebar-overlay');
@@ -2073,21 +2101,17 @@
             overlay.classList.toggle('show');
         };
 
-        // Switch mobile navigation
         window.switchMobileNav = function(el, section) {
             document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
             
             if (section === 'chat') {
-                // Show chat area
                 document.querySelector('.chat-main').style.display = 'flex';
             } else if (section === 'contacts') {
-                // Open sidebar with contacts
                 toggleMobileSidebar();
             }
         };
 
-        // Listen to friend requests
         function listenToFriendRequests() {
             if (friendRequestsUnsubscribe) friendRequestsUnsubscribe();
             
@@ -2181,7 +2205,6 @@
             }
         };
 
-        // Listen to all users for online status
         function listenToUsers() {
             if (usersUnsubscribe) usersUnsubscribe();
             
@@ -2258,7 +2281,6 @@
                     currentUserData = { name: displayName, email: user.email, avatar: null };
                 }
 
-                // Update desktop profile
                 document.getElementById('userName').textContent = displayName;
                 document.getElementById('userEmail').textContent = user.email;
                 
@@ -2270,7 +2292,6 @@
                     avatarEl.textContent = displayName.charAt(0).toUpperCase();
                 }
                 
-                // Update mobile profile
                 if (document.getElementById('mobileUserName')) {
                     document.getElementById('mobileUserName').textContent = displayName;
                     document.getElementById('mobileUserEmail').textContent = user.email;
@@ -2321,7 +2342,7 @@
                 `;
                 div.onclick = function(e) { 
                     if (e.target.classList.contains('add-member-btn')) return;
-                    openChat(id, 'channel'); 
+                    openChat(id, 'channel', null, this); 
                     if (isMobileDevice()) toggleMobileSidebar();
                 };
                 container.appendChild(div);
@@ -2329,7 +2350,7 @@
                     const mobileDiv = div.cloneNode(true);
                     mobileDiv.onclick = function(e) { 
                         if (e.target.classList.contains('add-member-btn')) return;
-                        openChat(id, 'channel'); 
+                        openChat(id, 'channel', null, this); 
                         toggleMobileSidebar();
                     };
                     mobileContainer.appendChild(mobileDiv);
@@ -2361,7 +2382,7 @@
                             </div>
                         `;
                         div.onclick = function() { 
-                            openChat(fid, 'friend', fdata.name);
+                            openChat(fid, 'friend', fdata.name, this);
                             if (isMobileDevice()) toggleMobileSidebar();
                         };
                         container.appendChild(div);
@@ -2369,7 +2390,7 @@
                         if (mobileContainer) {
                             const mobileDiv = div.cloneNode(true);
                             mobileDiv.onclick = function() { 
-                                openChat(fid, 'friend', fdata.name);
+                                openChat(fid, 'friend', fdata.name, this);
                                 toggleMobileSidebar();
                             };
                             mobileContainer.appendChild(mobileDiv);
@@ -2423,13 +2444,13 @@
             setTimeout(() => startCall(), 100);
         };
 
-        window.openChat = async function(id, type, name = null) {
+        window.openChat = async function(id, type, name = null, element = null) {
             currentChat = id; currentChatType = type; currentChatName = name;
             currentChannelId = type === 'channel' ? id : null;
             
             document.querySelectorAll('.channel-item').forEach(i => i.classList.remove('active'));
-            if (event && event.currentTarget) {
-                event.currentTarget.classList.add('active');
+            if (element) {
+                element.classList.add('active');
             }
             
             if (type === 'channel') {
@@ -2444,6 +2465,18 @@
                 document.getElementById('addMemberBtn').style.display = 'none';
             }
             loadMessages(id, type);
+            
+            if (isMobileDevice()) {
+                const sidebar = document.getElementById('mobileSidebar');
+                const overlay = document.querySelector('.mobile-sidebar-overlay');
+                if (sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('show');
+                }
+                setTimeout(() => {
+                    document.getElementById('msgInput').focus();
+                }, 300);
+            }
         };
 
         function loadMessages(chatId, type) {
@@ -2554,7 +2587,6 @@
                 });
                 currentUserData = { ...currentUserData, name: newName, avatar: newAvatar };
                 
-                // Update desktop
                 document.getElementById('userName').textContent = newName;
                 const avatarEl = document.getElementById('userAvatar');
                 if (newAvatar) {
@@ -2565,7 +2597,6 @@
                     avatarEl.textContent = newName.charAt(0).toUpperCase();
                 }
                 
-                // Update mobile
                 if (document.getElementById('mobileUserName')) {
                     document.getElementById('mobileUserName').textContent = newName;
                     const mobileAvatarEl = document.getElementById('mobileUserAvatar');
@@ -2993,7 +3024,7 @@
             isMuted = !isMuted;
             localStream.getAudioTracks().forEach(track => { track.enabled = !isMuted; });
             const muteBtn = document.getElementById('muteBtn');
-            if (isMuted) { muteBtn.classList.add('muted'); muteBtn.textContent = '🔇'; }
+            if (isMuted) { muteBtn.classList.add('muted'); muteBtn.textContent = ''; }
             else { muteBtn.classList.remove('muted'); muteBtn.textContent = '🎤'; }
         };
 
