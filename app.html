@@ -660,330 +660,388 @@
 
         // ========== ГОЛОСОВЫЕ ЗВОНКИ ==========
 
-        window.startCall = async function() {
-            if (!currentChat || currentChatType !== 'friend') {
-                alert('Голосовые звонки доступны только в личных сообщениях');
-                return;
+        // ========== ГОЛОСОВЫЕ ЗВОНКИ ==========
+
+window.startCall = async function() {
+    if (!currentChat || currentChatType !== 'friend') {
+        alert('Голосовые звонки доступны только в личных сообщениях');
+        return;
+    }
+
+    if (isCallActive) {
+        alert('Вы уже в звонке!');
+        return;
+    }
+
+    callRecipientId = currentChat;
+    callId = 'call_' + [currentUser.uid, callRecipientId].sort().join('_');
+
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        
+        document.getElementById('callModal').classList.add('show');
+        document.getElementById('callName').textContent = currentChatName;
+        document.getElementById('callAvatar').textContent = currentChatName.charAt(0).toUpperCase();
+        document.getElementById('callStatus').textContent = 'Вызов...';
+        
+        isCallActive = true;
+        isMuted = false;
+
+        createPeerConnection();
+
+        localStream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, localStream);
+        });
+
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+
+        // Ждём немного чтобы собрать ICE candidates
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Создаём документ звонка с полным offer
+        await setDoc(doc(db, 'calls', callId), {
+            callerId: currentUser.uid,
+            callerName: currentUser.displayName,
+            recipientId: callRecipientId,
+            status: 'ringing',
+            timestamp: serverTimestamp(),
+            offer: {
+                sdp: peerConnection.localDescription.sdp,
+                type: peerConnection.localDescription.type
             }
+        });
 
-            if (isCallActive) {
-                alert('Вы уже в звонке!');
-                return;
-            }
+        // Слушаем ответ и ICE candidates
+        listenForCallResponse();
 
-            callRecipientId = currentChat;
-            callId = 'call_' + [currentUser.uid, callRecipientId].sort().join('_');
+    } catch (error) {
+        console.error('Call error:', error);
+        alert('Ошибка при начале звонка: ' + error.message);
+        endCall();
+    }
+};
 
+function createPeerConnection() {
+    peerConnection = new RTCPeerConnection(rtcConfig);
+
+    peerConnection.onicecandidate = async (event) => {
+        if (event.candidate && callId) {
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-                
-                document.getElementById('callModal').classList.add('show');
-                document.getElementById('callName').textContent = currentChatName;
-                document.getElementById('callAvatar').textContent = currentChatName.charAt(0).toUpperCase();
-                document.getElementById('callStatus').textContent = 'Вызов...';
-                
-                isCallActive = true;
-                isMuted = false;
-
-                createPeerConnection();
-
-                localStream.getTracks().forEach(track => {
-                    peerConnection.addTrack(track, localStream);
+                await addDoc(collection(db, 'calls', callId, 'iceCandidates'), {
+                    candidate: event.candidate.candidate,
+                    sdpMid: event.candidate.sdpMid,
+                    sdpMLineIndex: event.candidate.sdpMLineIndex,
+                    from: currentUser.uid,
+                    timestamp: serverTimestamp()
                 });
-
-                const offer = await peerConnection.createOffer();
-                await peerConnection.setLocalDescription(offer);
-
-                // Создаём документ звонка
-                await setDoc(doc(db, 'calls', callId), {
-                    callerId: currentUser.uid,
-                    callerName: currentUser.displayName,
-                    recipientId: callRecipientId,
-                    status: 'ringing',
-                    timestamp: serverTimestamp(),
-                    offer: {
-                        sdp: offer.sdp,
-                        type: offer.type
-                    }
-                });
-
-                // Слушаем ответ
-                listenForCallResponse();
-
             } catch (error) {
-                console.error('Call error:', error);
-                alert('Ошибка при начале звонка: ' + error.message);
-                endCall();
+                console.error('Error sending ICE candidate:', error);
             }
-        };
-
-        function createPeerConnection() {
-            peerConnection = new RTCPeerConnection(rtcConfig);
-
-            peerConnection.onicecandidate = async (event) => {
-                if (event.candidate) {
-                    try {
-                        await updateDoc(doc(db, 'calls', callId), {
-                            iceCandidates: arrayUnion({
-                                candidate: event.candidate.candidate,
-                                sdpMid: event.candidate.sdpMid,
-                                sdpMLineIndex: event.candidate.sdpMLineIndex,
-                                from: currentUser.uid
-                            })
-                        });
-                    } catch (error) {
-                        console.error('Error sending ICE candidate:', error);
-                    }
-                }
-            };
-
-            peerConnection.ontrack = (event) => {
-                const audio = new Audio();
-                audio.srcObject = event.streams[0];
-                audio.autoplay = true;
-                audio.play().catch(e => console.log('Audio play error:', e));
-                document.getElementById('callStatus').textContent = 'Разговор...';
-            };
-
-            peerConnection.onconnectionstatechange = () => {
-                if (peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'failed') {
-                    endCall();
-                }
-            };
         }
+    };
 
-        function listenForCallResponse() {
-            callUnsubscribe = onSnapshot(doc(db, 'calls', callId), async (docSnap) => {
-                if (!docSnap.exists()) return;
-                
-                const callData = docSnap.data();
-                
-                if (callData.status === 'accepted' && callData.answer) {
-                    try {
-                        await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.answer));
-                    } catch (e) {
-                        console.error('Error setting remote description:', e);
-                    }
-                }
-                
-                if (callData.status === 'ended' || callData.status === 'rejected' || callData.status === 'missed') {
-                    if (callData.status === 'rejected') {
-                        document.getElementById('callStatus').textContent = 'Отклонён';
-                        setTimeout(() => endCall(), 1500);
-                    } else if (callData.status === 'missed') {
-                        document.getElementById('callStatus').textContent = 'Не отвечают';
-                        setTimeout(() => endCall(), 1500);
-                    } else {
-                        endCall();
-                    }
-                }
+    peerConnection.ontrack = (event) => {
+        console.log('Received remote track');
+        const audio = document.getElementById('remoteAudio');
+        if (audio) {
+            audio.srcObject = event.streams[0];
+            audio.play().then(() => {
+                console.log('Audio playing');
+            }).catch(e => {
+                console.error('Audio play error:', e);
             });
+        } else {
+            // Создаём audio элемент если нет
+            const newAudio = new Audio();
+            newAudio.srcObject = event.streams[0];
+            newAudio.autoplay = true;
+            newAudio.play().catch(e => console.error('Audio play error:', e));
+            document.body.appendChild(newAudio);
         }
+        document.getElementById('callStatus').textContent = 'Разговор...';
+    };
 
-        // Слушаем входящие звонки
-        function listenForCalls() {
-            const callsRef = collection(db, 'calls');
-            const q = query(callsRef, where('recipientId', '==', currentUser.uid));
-            
-            incomingCallUnsubscribe = onSnapshot(q, async (snapshot) => {
-                snapshot.forEach(async (docSnap) => {
-                    const callData = docSnap.data();
-                    const docId = docSnap.id;
-                    
-                    if (callData.status === 'ringing' && callData.callerId !== currentUser.uid && !isCallActive) {
-                        // Если уже показываем окно входящего — не показываем снова
-                        if (pendingIncomingCall && pendingIncomingCall.docId === docId) return;
-                        
-                        // Получаем имя звонящего
-                        let callerName = callData.callerName || 'Неизвестный';
-                        try {
-                            const callerDoc = await getDoc(doc(db, 'users', callData.callerId));
-                            if (callerDoc.exists()) {
-                                callerName = callerDoc.data().name || callerName;
-                            }
-                        } catch (e) {
-                            console.error('Error getting caller name:', e);
-                        }
-
-                        // Сохраняем данные
-                        pendingIncomingCall = {
-                            docId: docId,
-                            callerId: callData.callerId,
-                            callerName: callerName,
-                            offer: callData.offer
-                        };
-
-                        // Показываем красивое окно
-                        document.getElementById('incomingName').textContent = callerName;
-                        document.getElementById('incomingAvatar').textContent = callerName.charAt(0).toUpperCase();
-                        document.getElementById('incomingCallModal').classList.add('show');
-
-                        // Автоматически закрываем через 30 секунд если не ответили
-                        setTimeout(() => {
-                            if (pendingIncomingCall && pendingIncomingCall.docId === docId) {
-                                // Проверяем, актуален ли ещё звонок
-                                getDoc(doc(db, 'calls', docId)).then((d) => {
-                                    if (d.exists() && d.data().status === 'ringing') {
-                                        updateDoc(doc(db, 'calls', docId), { status: 'missed' });
-                                        hideIncomingCall();
-                                    }
-                                });
-                            }
-                        }, 30000);
-                    }
-                });
-            });
+    peerConnection.onconnectionstatechange = () => {
+        console.log('Connection state:', peerConnection.connectionState);
+        if (peerConnection.connectionState === 'connected') {
+            console.log('Successfully connected!');
         }
+        if (peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'failed') {
+            endCall();
+        }
+    };
+}
 
-        // Принять входящий звонок
-        window.acceptIncomingCall = async function() {
-            if (!pendingIncomingCall) return;
-            
-            const callDocId = pendingIncomingCall.docId;
-            const offer = pendingIncomingCall.offer;
-            const callerId = pendingIncomingCall.callerId;
-            
-            hideIncomingCall();
-            callId = callDocId;
-            callRecipientId = callerId;
-
+function listenForCallResponse() {
+    callUnsubscribe = onSnapshot(doc(db, 'calls', callId), async (docSnap) => {
+        if (!docSnap.exists()) return;
+        
+        const callData = docSnap.data();
+        
+        if (callData.status === 'accepted' && callData.answer && !peerConnection.currentRemoteDescription) {
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-                
-                // Показываем окно разговора
-                document.getElementById('callModal').classList.add('show');
-                document.getElementById('callName').textContent = pendingIncomingCall.callerName;
-                document.getElementById('callAvatar').textContent = pendingIncomingCall.callerName.charAt(0).toUpperCase();
-                document.getElementById('callStatus').textContent = 'Подключение...';
-                
-                isCallActive = true;
-                isMuted = false;
-
-                createPeerConnection();
-
-                localStream.getTracks().forEach(track => {
-                    peerConnection.addTrack(track, localStream);
-                });
-
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-                const answer = await peerConnection.createAnswer();
-                await peerConnection.setLocalDescription(answer);
-
-                await updateDoc(doc(db, 'calls', callId), {
-                    status: 'accepted',
-                    answer: {
-                        sdp: answer.sdp,
-                        type: answer.type
-                    }
-                });
-
-                // Слушаем ICE candidates и статус
-                callUnsubscribe = onSnapshot(doc(db, 'calls', callId), async (docSnap) => {
-                    if (!docSnap.exists()) return;
-                    const callData = docSnap.data();
-                    
-                    if (callData.iceCandidates) {
-                        for (const ice of callData.iceCandidates) {
-                            if (ice.from !== currentUser.uid && ice.candidate) {
-                                try {
-                                    await peerConnection.addIceCandidate(new RTCIceCandidate(ice));
-                                } catch (e) {
-                                    console.error('Error adding ICE candidate:', e);
-                                }
-                            }
-                        }
-                    }
-                    
-                    if (callData.status === 'ended') {
-                        endCall();
-                    }
-                });
-
-            } catch (error) {
-                console.error('Accept call error:', error);
-                alert('Ошибка при принятии звонка: ' + error.message);
-                endCall();
+                const answerDesc = new RTCSessionDescription(callData.answer);
+                await peerConnection.setRemoteDescription(answerDesc);
+                console.log('Remote description set (answer)');
+            } catch (e) {
+                console.error('Error setting remote description:', e);
             }
-            
-            pendingIncomingCall = null;
-        };
-
-        // Отклонить входящий звонок
-        window.declineIncomingCall = async function() {
-            if (!pendingIncomingCall) return;
-            
-            const callDocId = pendingIncomingCall.docId;
-            
-            try {
-                await updateDoc(doc(db, 'calls', callDocId), { status: 'rejected' });
-                // Удаляем через 2 секунды
-                setTimeout(() => {
-                    deleteDoc(doc(db, 'calls', callDocId)).catch(e => console.log(e));
-                }, 2000);
-            } catch (error) {
-                console.error('Reject call error:', error);
-            }
-            
-            hideIncomingCall();
-            pendingIncomingCall = null;
-        };
-
-        function hideIncomingCall() {
-            document.getElementById('incomingCallModal').classList.remove('show');
         }
-
-        window.toggleMute = function() {
-            if (!localStream) return;
-            
-            isMuted = !isMuted;
-            localStream.getAudioTracks().forEach(track => {
-                track.enabled = !isMuted;
-            });
-            
-            const muteBtn = document.getElementById('muteBtn');
-            if (isMuted) {
-                muteBtn.classList.add('muted');
-                muteBtn.textContent = '🔇';
+        
+        if (callData.status === 'ended' || callData.status === 'rejected' || callData.status === 'missed') {
+            if (callData.status === 'rejected') {
+                document.getElementById('callStatus').textContent = 'Отклонён';
+                setTimeout(() => endCall(), 1500);
+            } else if (callData.status === 'missed') {
+                document.getElementById('callStatus').textContent = 'Не отвечают';
+                setTimeout(() => endCall(), 1500);
             } else {
-                muteBtn.classList.remove('muted');
-                muteBtn.textContent = '🎤';
+                endCall();
             }
-        };
+        }
+    });
 
-        window.endCall = async function() {
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-                localStream = null;
-            }
-
-            if (peerConnection) {
-                peerConnection.close();
-                peerConnection = null;
-            }
-
-            if (callUnsubscribe) {
-                callUnsubscribe();
-                callUnsubscribe = null;
-            }
-
-            if (callId) {
-                try {
-                    await updateDoc(doc(db, 'calls', callId), { status: 'ended' });
-                    setTimeout(() => {
-                        deleteDoc(doc(db, 'calls', callId)).catch(e => console.log(e));
-                    }, 3000);
-                } catch (error) {
-                    console.error('Error ending call:', error);
+    // Слушаем ICE candidates от собеседника
+    const iceRef = collection(db, 'calls', callId, 'iceCandidates');
+    onSnapshot(iceRef, async (snapshot) => {
+        snapshot.docChanges().forEach(async (change) => {
+            if (change.type === 'added') {
+                const data = change.doc.data();
+                if (data.from !== currentUser.uid && data.candidate && peerConnection) {
+                    try {
+                        await peerConnection.addIceCandidate(new RTCIceCandidate({
+                            candidate: data.candidate,
+                            sdpMid: data.sdpMid,
+                            sdpMLineIndex: data.sdpMLineIndex
+                        }));
+                        console.log('Added ICE candidate from:', data.from);
+                    } catch (e) {
+                        console.error('Error adding ICE candidate:', e);
+                    }
                 }
-                callId = null;
             }
+        });
+    });
+}
 
-            document.getElementById('callModal').classList.remove('show');
+// Слушаем входящие звонки
+function listenForCalls() {
+    const callsRef = collection(db, 'calls');
+    const q = query(callsRef, where('recipientId', '==', currentUser.uid));
+    
+    incomingCallUnsubscribe = onSnapshot(q, async (snapshot) => {
+        snapshot.forEach(async (docSnap) => {
+            const callData = docSnap.data();
+            const docId = docSnap.id;
             
-            isCallActive = false;
-            isMuted = false;
-            callRecipientId = null;
-        };
+            if (callData.status === 'ringing' && callData.callerId !== currentUser.uid && !isCallActive) {
+                if (pendingIncomingCall && pendingIncomingCall.docId === docId) return;
+                
+                let callerName = callData.callerName || 'Неизвестный';
+                try {
+                    const callerDoc = await getDoc(doc(db, 'users', callData.callerId));
+                    if (callerDoc.exists()) {
+                        callerName = callerDoc.data().name || callerName;
+                    }
+                } catch (e) {
+                    console.error('Error getting caller name:', e);
+                }
+
+                pendingIncomingCall = {
+                    docId: docId,
+                    callerId: callData.callerId,
+                    callerName: callerName,
+                    offer: callData.offer
+                };
+
+                document.getElementById('incomingName').textContent = callerName;
+                document.getElementById('incomingAvatar').textContent = callerName.charAt(0).toUpperCase();
+                document.getElementById('incomingCallModal').classList.add('show');
+
+                setTimeout(() => {
+                    if (pendingIncomingCall && pendingIncomingCall.docId === docId) {
+                        getDoc(doc(db, 'calls', docId)).then((d) => {
+                            if (d.exists() && d.data().status === 'ringing') {
+                                updateDoc(doc(db, 'calls', docId), { status: 'missed' });
+                                hideIncomingCall();
+                            }
+                        });
+                    }
+                }, 30000);
+            }
+        });
+    });
+}
+
+// Принять входящий звонок
+window.acceptIncomingCall = async function() {
+    if (!pendingIncomingCall) return;
+    
+    const callDocId = pendingIncomingCall.docId;
+    const offer = pendingIncomingCall.offer;
+    const callerId = pendingIncomingCall.callerId;
+    
+    hideIncomingCall();
+    callId = callDocId;
+    callRecipientId = callerId;
+
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        
+        document.getElementById('callModal').classList.add('show');
+        document.getElementById('callName').textContent = pendingIncomingCall.callerName;
+        document.getElementById('callAvatar').textContent = pendingIncomingCall.callerName.charAt(0).toUpperCase();
+        document.getElementById('callStatus').textContent = 'Подключение...';
+        
+        isCallActive = true;
+        isMuted = false;
+
+        createPeerConnection();
+
+        localStream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, localStream);
+        });
+
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+
+        // Ждём чтобы собрать ICE candidates
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        await updateDoc(doc(db, 'calls', callId), {
+            status: 'accepted',
+            answer: {
+                sdp: peerConnection.localDescription.sdp,
+                type: peerConnection.localDescription.type
+            }
+        });
+
+        // Слушаем ICE candidates от звонящего
+        const iceRef = collection(db, 'calls', callId, 'iceCandidates');
+        onSnapshot(iceRef, async (snapshot) => {
+            snapshot.docChanges().forEach(async (change) => {
+                if (change.type === 'added') {
+                    const data = change.doc.data();
+                    if (data.from !== currentUser.uid && data.candidate && peerConnection) {
+                        try {
+                            await peerConnection.addIceCandidate(new RTCIceCandidate({
+                                candidate: data.candidate,
+                                sdpMid: data.sdpMid,
+                                sdpMLineIndex: data.sdpMLineIndex
+                            }));
+                            console.log('Added ICE candidate from:', data.from);
+                        } catch (e) {
+                            console.error('Error adding ICE candidate:', e);
+                        }
+                    }
+                }
+            });
+        });
+
+        // Слушаем статус звонка
+        callUnsubscribe = onSnapshot(doc(db, 'calls', callId), async (docSnap) => {
+            if (!docSnap.exists()) return;
+            const callData = docSnap.data();
+            if (callData.status === 'ended') {
+                endCall();
+            }
+        });
+
+    } catch (error) {
+        console.error('Accept call error:', error);
+        alert('Ошибка при принятии звонка: ' + error.message);
+        endCall();
+    }
+    
+    pendingIncomingCall = null;
+};
+
+// Отклонить входящий звонок
+window.declineIncomingCall = async function() {
+    if (!pendingIncomingCall) return;
+    
+    const callDocId = pendingIncomingCall.docId;
+    
+    try {
+        await updateDoc(doc(db, 'calls', callDocId), { status: 'rejected' });
+        setTimeout(() => {
+            deleteDoc(doc(db, 'calls', callDocId)).catch(e => console.log(e));
+        }, 2000);
+    } catch (error) {
+        console.error('Reject call error:', error);
+    }
+    
+    hideIncomingCall();
+    pendingIncomingCall = null;
+};
+
+function hideIncomingCall() {
+    document.getElementById('incomingCallModal').classList.remove('show');
+}
+
+window.toggleMute = function() {
+    if (!localStream) return;
+    
+    isMuted = !isMuted;
+    localStream.getAudioTracks().forEach(track => {
+        track.enabled = !isMuted;
+    });
+    
+    const muteBtn = document.getElementById('muteBtn');
+    if (isMuted) {
+        muteBtn.classList.add('muted');
+        muteBtn.textContent = '🔇';
+    } else {
+        muteBtn.classList.remove('muted');
+        muteBtn.textContent = '🎤';
+    }
+};
+
+window.endCall = async function() {
+    if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+    }
+
+    if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+    }
+
+    if (callUnsubscribe) {
+        callUnsubscribe();
+        callUnsubscribe = null;
+    }
+
+    if (callId) {
+        try {
+            await updateDoc(doc(db, 'calls', callId), { status: 'ended' });
+            
+            // Очищаем ICE candidates
+            const iceRef = collection(db, 'calls', callId, 'iceCandidates');
+            const iceSnap = await getDocs(iceRef);
+            iceSnap.forEach(async (doc) => {
+                await deleteDoc(doc.ref);
+            });
+            
+            setTimeout(() => {
+                deleteDoc(doc(db, 'calls', callId)).catch(e => console.log(e));
+            }, 5000);
+        } catch (error) {
+            console.error('Error ending call:', error);
+        }
+        callId = null;
+    }
+
+    document.getElementById('callModal').classList.remove('show');
+    
+    isCallActive = false;
+    isMuted = false;
+    callRecipientId = null;
+    pendingIncomingCall = null;
+};
     </script>
 </body>
 </html>
