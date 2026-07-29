@@ -4,214 +4,171 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sniggers - Next Gen Messenger</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         :root {
-            --bg-primary: #030308;
+            --bg-primary: #050508;
             --bg-secondary: #0a0a12;
-            --bg-tertiary: #12121f;
-            --bg-card: rgba(18, 18, 31, 0.7);
-            --accent-primary: #6366f1;
-            --accent-secondary: #a855f7;
-            --accent-tertiary: #ec4899;
-            --accent-glow: rgba(99, 102, 241, 0.5);
+            --bg-card: rgba(15, 15, 25, 0.6);
+            --accent-lime: #00ff88;
+            --accent-pink: #ff006e;
+            --accent-blue: #00d4ff;
+            --accent-purple: #8338ec;
             --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --text-tertiary: #71717a;
-            --border-color: rgba(255, 255, 255, 0.06);
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --glass-bg: rgba(255, 255, 255, 0.02);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-secondary: #a0a0b0;
+            --text-tertiary: #606070;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             height: 100vh;
             overflow: hidden;
             position: relative;
-            touch-action: manipulation;
         }
 
         body::before {
             content: '';
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: 
-                radial-gradient(circle at 15% 30%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 85% 70%, rgba(168, 85, 247, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 50% 90%, rgba(236, 72, 153, 0.08) 0%, transparent 40%);
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
             pointer-events: none;
             z-index: 0;
-            animation: bgPulse 8s ease-in-out infinite;
         }
 
-        @keyframes bgPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .orb-1 { width: 400px; height: 400px; background: var(--accent-lime); top: -100px; right: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: var(--accent-pink); bottom: -50px; left: -50px; animation-delay: 2s; }
+        .orb-3 { width: 250px; height: 250px; background: var(--accent-blue); top: 50%; left: 50%; animation-delay: 4s; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
         }
 
         .app {
             display: grid;
-            grid-template-columns: 72px 300px 1fr 300px;
+            grid-template-columns: 280px 1fr 320px;
             height: 100vh;
-            gap: 1px;
-            background: var(--border-color);
+            gap: 20px;
+            padding: 20px;
             position: relative;
             z-index: 1;
         }
 
-        .nav-left {
-            background: var(--bg-secondary);
+        /* Left Sidebar */
+        .sidebar-left {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            padding: 24px 0;
-            gap: 12px;
-            border-right: 1px solid var(--border-color);
-        }
-
-        .logo {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            font-weight: 900;
-            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
-            margin-bottom: 24px;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
             overflow: hidden;
         }
 
-        .logo::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: logoShine 3s infinite;
-        }
-
-        @keyframes logoShine {
-            0% { transform: translateX(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) rotate(45deg); }
-        }
-
-        .logo:hover { 
-            transform: scale(1.1) rotate(5deg);
-            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.6);
-        }
-
-        .nav-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 18px;
-            color: var(--text-tertiary);
-            position: relative;
-            background: transparent;
-            border: none;
-        }
-
-        .nav-icon:hover {
-            background: var(--glass-bg);
-            color: var(--text-primary);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-        }
-
-        .nav-icon.active {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: white;
-            box-shadow: 0 4px 20px var(--accent-glow);
-        }
-
-        .nav-icon .badge {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            width: 8px;
-            height: 8px;
-            background: var(--danger);
-            border-radius: 50%;
-            border: 2px solid var(--bg-secondary);
-            box-shadow: 0 0 12px var(--danger);
-        }
-
-        .nav-spacer { flex: 1; }
-
-        .sidebar-workspaces {
-            background: var(--bg-secondary);
-            padding: 24px 16px;
-            overflow-y: auto;
-            border-right: 1px solid var(--border-color);
-        }
-
-        .workspace-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 28px;
-            padding-bottom: 16px;
+        .user-profile {
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 212, 255, 0.1));
             border-bottom: 1px solid var(--border-color);
         }
 
-        .workspace-title {
-            font-size: 20px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
         }
 
-        .btn-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 10px;
-            border: none;
-            background: var(--glass-bg);
-            color: var(--text-secondary);
-            cursor: pointer;
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--accent-lime), var(--accent-blue));
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            box-shadow: 0 8px 24px rgba(0, 255, 136, 0.3);
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
             transition: all 0.3s;
-            font-size: 18px;
+            flex-shrink: 0;
         }
 
-        .btn-icon:hover {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: white;
-            transform: scale(1.1) rotate(90deg);
-            box-shadow: 0 4px 16px var(--accent-glow);
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 32px rgba(0, 255, 136, 0.5);
         }
 
-        .channel-group { margin-bottom: 24px; }
+        .user-details { flex: 1; min-width: 0; }
 
-        .channel-group-title {
-            font-size: 10px;
+        .user-details h3 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-status {
+            font-size: 11px;
+            color: var(--accent-lime);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .user-status::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--accent-lime);
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--accent-lime);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .section { margin-bottom: 20px; }
+
+        .section-header {
+            font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             color: var(--text-tertiary);
             margin-bottom: 12px;
             padding-left: 12px;
@@ -220,123 +177,141 @@
             align-items: center;
         }
 
-        .channel-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 12px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 4px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .channel-item::before {
-            content: '';
-            position: absolute;
-            left: 0; top: 0; bottom: 0;
-            width: 3px;
-            background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .channel-item:hover { 
+        .add-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 8px;
+            border: none;
             background: var(--glass-bg);
-            transform: translateX(4px);
-        }
-
-        .channel-item.active {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
-            border: 1px solid var(--glass-border);
-        }
-
-        .channel-item.active::before { opacity: 1; }
-
-        .channel-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+            color: var(--accent-lime);
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .add-btn:hover {
+            background: var(--accent-lime);
+            color: var(--bg-primary);
+            transform: scale(1.1);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+            position: relative;
+        }
+
+        .nav-item:hover {
             background: var(--glass-bg);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 212, 255, 0.15));
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 60%;
+            background: var(--accent-lime);
+            border-radius: 2px;
+            box-shadow: 0 0 12px var(--accent-lime);
+        }
+
+        .nav-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
             flex-shrink: 0;
             overflow: hidden;
             background-size: cover;
             background-position: center;
         }
 
-        .channel-item.active .channel-icon {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        .nav-item.active .nav-icon {
+            background: linear-gradient(135deg, var(--accent-lime), var(--accent-blue));
+            border-color: transparent;
         }
 
-        .channel-info { flex: 1; min-width: 0; }
-
-        .channel-name {
+        .nav-label {
+            flex: 1;
             font-size: 14px;
             font-weight: 600;
-            margin-bottom: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .channel-meta {
-            font-size: 11px;
-            color: var(--text-tertiary);
-        }
-
-        .add-member-btn {
-            width: 24px;
-            height: 24px;
-            border-radius: 8px;
-            border: none;
-            background: var(--glass-bg);
-            color: var(--text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            transition: all 0.2s;
-            flex-shrink: 0;
-            opacity: 0;
-        }
-
-        .channel-item:hover .add-member-btn { opacity: 1; }
-
-        .add-member-btn:hover {
-            background: var(--accent-primary);
+        .nav-badge {
+            background: var(--accent-pink);
             color: white;
-            transform: scale(1.1);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(255, 0, 110, 0.4);
         }
 
-        .chat-main {
-            background: var(--bg-primary);
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+        }
+
+        .sidebar-footer .btn {
+            flex: 1;
+            justify-content: center;
+            padding: 10px;
+            font-size: 12px;
+        }
+
+        /* Main Chat */
+        .main {
             display: flex;
             flex-direction: column;
-            position: relative;
+            gap: 20px;
         }
 
         .chat-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
             padding: 20px 28px;
-            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(10, 10, 18, 0.8);
-            backdrop-filter: blur(20px);
         }
 
         .chat-header-info h2 {
-            font-size: 20px;
-            font-weight: 800;
+            font-size: 22px;
+            font-weight: 700;
             margin-bottom: 4px;
-            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-lime));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .chat-header-info p {
@@ -344,34 +319,49 @@
             color: var(--text-secondary);
         }
 
-        .chat-actions { display: flex; gap: 10px; }
+        .chat-actions {
+            display: flex;
+            gap: 12px;
+        }
 
-        .btn-action {
-            padding: 10px 18px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
+        .btn {
+            padding: 12px 20px;
+            border-radius: 14px;
+            border: 1px solid var(--glass-border);
             background: var(--glass-bg);
             color: var(--text-primary);
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             transition: all 0.3s;
             backdrop-filter: blur(10px);
+            font-family: 'Space Grotesk', sans-serif;
         }
 
-        .btn-action:hover:not(:disabled) {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        .btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--accent-lime), var(--accent-blue));
             border-color: transparent;
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px var(--accent-glow);
+            box-shadow: 0 8px 24px rgba(0, 255, 136, 0.3);
+            color: var(--bg-primary);
         }
 
-        .btn-action:disabled {
+        .btn:disabled {
             opacity: 0.3;
             cursor: not-allowed;
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+            border: none;
+        }
+
+        .btn.primary:hover:not(:disabled) {
+            box-shadow: 0 8px 24px rgba(255, 0, 110, 0.4);
+            color: white;
         }
 
         .messages-area {
@@ -380,34 +370,34 @@
             padding: 28px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
         }
 
         .message {
             display: flex;
             gap: 16px;
-            animation: messageSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: messageSlide 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         @keyframes messageSlide {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .message.own { flex-direction: row-reverse; }
 
         .message-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--accent-lime), var(--accent-blue));
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 16px;
+            font-size: 18px;
             flex-shrink: 0;
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 255, 136, 0.3);
             overflow: hidden;
             background-size: cover;
             background-position: center;
@@ -416,39 +406,34 @@
         .message-content {
             max-width: 65%;
             background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 18px;
-            padding: 16px 20px;
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 18px 22px;
             backdrop-filter: blur(20px);
-            position: relative;
+            transition: all 0.3s;
         }
 
-        .message-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        .message-content:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
         .message.own .message-content {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
-            border-color: rgba(99, 102, 241, 0.3);
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 212, 255, 0.15));
+            border-color: rgba(0, 255, 136, 0.3);
         }
 
         .message-author {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
-            color: var(--accent-primary);
-            margin-bottom: 6px;
+            color: var(--accent-lime);
+            margin-bottom: 8px;
         }
 
-        .message.own .message-author { color: #c7d2fe; }
+        .message.own .message-author { color: var(--accent-blue); }
 
         .message-text {
-            font-size: 14px;
+            font-size: 15px;
             line-height: 1.6;
             color: var(--text-primary);
         }
@@ -456,39 +441,33 @@
         .message-time {
             font-size: 11px;
             color: var(--text-tertiary);
-            margin-top: 8px;
+            margin-top: 10px;
             font-family: 'JetBrains Mono', monospace;
         }
 
         .input-container {
-            padding: 24px 28px;
-            border-top: 1px solid var(--border-color);
-            background: rgba(10, 10, 18, 0.8);
+            background: var(--glass-bg);
             backdrop-filter: blur(20px);
-        }
-
-        .input-wrapper {
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 8px;
             display: flex;
-            gap: 12px;
             align-items: center;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: 18px;
-            padding: 6px;
+            gap: 12px;
             transition: all 0.3s;
         }
 
-        .input-wrapper:focus-within {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        .input-container:focus-within {
+            border-color: var(--accent-lime);
+            box-shadow: 0 0 0 4px rgba(0, 255, 136, 0.1);
         }
 
-        .input-actions-left { display: flex; gap: 4px; padding: 0 8px; }
+        .input-actions { display: flex; gap: 4px; padding: 0 8px; }
 
         .input-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
             border: none;
             background: transparent;
             color: var(--text-tertiary);
@@ -496,13 +475,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             transition: all 0.2s;
         }
 
         .input-btn:hover {
             background: var(--glass-bg);
-            color: var(--accent-primary);
+            color: var(--accent-lime);
             transform: scale(1.1);
         }
 
@@ -512,239 +491,92 @@
             border: none;
             outline: none;
             color: var(--text-primary);
-            font-size: 14px;
-            padding: 10px 12px;
+            font-size: 15px;
+            padding: 12px;
+            font-family: 'Space Grotesk', sans-serif;
         }
 
         .message-input::placeholder { color: var(--text-tertiary); }
 
         .btn-send {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
             border: none;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: white;
+            background: linear-gradient(135deg, var(--accent-lime), var(--accent-blue));
+            color: var(--bg-primary);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             transition: all 0.3s;
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 8px 24px rgba(0, 255, 136, 0.4);
         }
 
         .btn-send:hover {
             transform: scale(1.1) rotate(-10deg);
-            box-shadow: 0 6px 24px rgba(99, 102, 241, 0.6);
+            box-shadow: 0 12px 32px rgba(0, 255, 136, 0.6);
         }
 
-        .sidebar-right {
-            background: var(--bg-secondary);
-            padding: 24px 16px;
-            overflow-y: auto;
-            border-left: 1px solid var(--border-color);
-        }
-
-        .profile-card {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 24px;
+        /* Right Panel */
+        .right-panel {
+            background: var(--glass-bg);
             backdrop-filter: blur(20px);
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .profile-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
-        }
-
-        .profile-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.2);
-        }
-
-        .profile-header {
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 24px;
+            overflow-y: auto;
             display: flex;
-            align-items: center;
-            gap: 14px;
+            flex-direction: column;
+            gap: 24px;
         }
 
-        .profile-avatar {
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            font-weight: 800;
-            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
-            overflow: hidden;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-        }
+        .panel-section { display: flex; flex-direction: column; gap: 12px; }
 
-        .profile-avatar::after {
-            content: '📷';
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
+        .panel-title {
             font-size: 12px;
-            background: rgba(0,0,0,0.8);
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .profile-info { flex: 1; }
-
-        .profile-info h3 {
-            font-size: 16px;
-            font-weight: 800;
-            margin-bottom: 4px;
-            letter-spacing: -0.3px;
-        }
-
-        .profile-info p {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 20px;
-            font-size: 10px;
-            color: var(--success);
-            font-weight: 700;
-            margin-top: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .status-badge::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: var(--success);
-            border-radius: 50%;
-            box-shadow: 0 0 12px var(--success);
-            animation: statusPulse 2s infinite;
-        }
-
-        @keyframes statusPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .users-section { margin-bottom: 24px; }
-
-        .section-title {
-            font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             color: var(--text-tertiary);
-            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .online-count {
-            color: var(--success);
+        .panel-count {
+            color: var(--accent-lime);
             font-weight: 800;
-            font-size: 11px;
         }
 
-        .add-friend-wrapper {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .add-friend-input {
-            flex: 1;
-            padding: 10px 14px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 13px;
-            outline: none;
-            transition: all 0.2s;
-        }
-
-        .add-friend-input:focus {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-        }
-
-        .add-friend-btn {
-            padding: 10px 14px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border: none;
-            border-radius: 10px;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            min-width: 44px;
-        }
-
-        .add-friend-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-        }
-
-        .user-item {
+        .user-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 14px;
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 10px 12px;
-            border-radius: 12px;
-            margin-bottom: 4px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
         }
 
-        .user-item:hover {
-            background: var(--glass-bg);
+        .user-card:hover {
+            background: rgba(0, 255, 136, 0.05);
+            border-color: var(--accent-lime);
             transform: translateX(4px);
         }
 
-        .user-avatar-small {
-            width: 36px;
-            height: 36px;
+        .user-card-avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 12px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            background: linear-gradient(135deg, var(--accent-lime), var(--accent-blue));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 700;
             flex-shrink: 0;
             position: relative;
@@ -753,52 +585,54 @@
             background-position: center;
         }
 
-        .user-avatar-small .status-dot {
+        .user-card-avatar .status {
             position: absolute;
             bottom: -2px;
             right: -2px;
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
-            border: 2px solid var(--bg-secondary);
+            border: 2px solid var(--bg-primary);
         }
 
-        .user-avatar-small .status-dot.online { 
-            background: var(--success); 
-            box-shadow: 0 0 12px var(--success);
-            animation: statusPulse 2s infinite;
+        .user-card-avatar .status.online {
+            background: var(--accent-lime);
+            box-shadow: 0 0 12px var(--accent-lime);
         }
-        .user-avatar-small .status-dot.offline { background: var(--text-tertiary); }
 
-        .user-item-info { flex: 1; min-width: 0; }
+        .user-card-avatar .status.offline { background: var(--text-tertiary); }
 
-        .user-item-name {
-            font-size: 13px;
+        .user-card-info { flex: 1; min-width: 0; }
+
+        .user-card-name {
+            font-size: 14px;
             font-weight: 700;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .user-item-status {
+        .user-card-status {
             font-size: 11px;
             color: var(--text-tertiary);
         }
 
-        .user-item-status.online-text { color: var(--success); font-weight: 600; }
-
-        .friend-request-item {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.05));
-            border: 1px solid var(--glass-border);
-            border-radius: 14px;
-            padding: 14px;
-            margin-bottom: 10px;
-            animation: requestSlide 0.4s ease;
+        .user-card-status.online-text {
+            color: var(--accent-lime);
+            font-weight: 600;
         }
 
-        @keyframes requestSlide {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
+        .friend-request {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 212, 255, 0.05));
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            animation: requestPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes requestPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.2); }
+            50% { box-shadow: 0 0 0 8px rgba(0, 255, 136, 0); }
         }
 
         .friend-request-header {
@@ -809,14 +643,14 @@
         }
 
         .friend-request-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             overflow: hidden;
             background-size: cover;
@@ -827,45 +661,43 @@
         .friend-request-info { flex: 1; }
 
         .friend-request-name {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
             margin-bottom: 2px;
         }
 
         .friend-request-text {
-            font-size: 11px;
+            font-size: 12px;
             color: var(--text-secondary);
         }
 
-        .friend-request-actions {
-            display: flex;
-            gap: 8px;
-        }
+        .friend-request-actions { display: flex; gap: 8px; }
 
         .friend-request-btn {
             flex: 1;
-            padding: 8px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 12px;
             border: none;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
             transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 6px;
+            font-family: 'Space Grotesk', sans-serif;
         }
 
         .friend-request-btn.accept {
-            background: linear-gradient(135deg, var(--success), #059669);
-            color: white;
+            background: linear-gradient(135deg, var(--accent-lime), var(--accent-blue));
+            color: var(--bg-primary);
         }
 
         .friend-request-btn.decline {
             background: var(--glass-bg);
             color: var(--text-secondary);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--glass-border);
         }
 
         .friend-request-btn:hover {
@@ -873,147 +705,101 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
-        .no-requests {
+        .no-items {
             text-align: center;
             padding: 20px;
             color: var(--text-tertiary);
             font-size: 13px;
         }
 
-        .mobile-nav {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-            padding: 8px 0;
-            z-index: 100;
-            backdrop-filter: blur(20px);
-        }
+        .add-friend-wrapper { display: flex; gap: 8px; }
 
-        .mobile-nav-items {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }
-
-        .mobile-nav-item {
+        .add-friend-input {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            padding: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            background: transparent;
-            color: var(--text-tertiary);
-        }
-
-        .mobile-nav-item.active {
-            color: var(--accent-primary);
-        }
-
-        .mobile-nav-item .icon {
-            font-size: 24px;
-        }
-
-        .mobile-nav-item .label {
-            font-size: 10px;
-            font-weight: 600;
-        }
-
-        .mobile-header {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
             padding: 12px 16px;
-            z-index: 100;
-            backdrop-filter: blur(20px);
-        }
-
-        .mobile-header-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .mobile-header-title {
-            font-size: 18px;
-            font-weight: 800;
-        }
-
-        .mobile-menu-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            border: none;
             background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
             color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+            transition: all 0.2s;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .add-friend-input:focus {
+            border-color: var(--accent-lime);
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
+        }
+
+        .add-friend-btn {
+            padding: 12px 16px;
+            background: linear-gradient(135deg, var(--accent-lime), var(--accent-blue));
+            border: none;
+            border-radius: 12px;
+            color: var(--bg-primary);
             cursor: pointer;
+            font-size: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            transition: all 0.2s;
+            min-width: 48px;
         }
 
-        .mobile-sidebar {
+        .add-friend-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.4);
+        }
+
+        /* Emoji Picker */
+        .emoji-picker {
             display: none;
-            position: fixed;
-            top: 0;
-            left: -100%;
-            width: 80%;
-            max-width: 300px;
-            height: 100vh;
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
             background: var(--bg-secondary);
-            z-index: 200;
-            overflow-y: auto;
-            transition: left 0.3s ease;
-            padding: 80px 16px 100px;
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            z-index: 100;
         }
 
-        .mobile-sidebar.open {
-            left: 0;
+        .emoji-picker.show { display: block; }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
         }
 
-        .mobile-sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 150;
-            backdrop-filter: blur(4px);
+        .emoji-item {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.2s;
         }
 
-        .mobile-sidebar-overlay.show {
-            display: block;
+        .emoji-item:hover {
+            background: var(--glass-bg);
+            transform: scale(1.2);
         }
 
+        /* Modals */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(12px);
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
-            animation: modalFade 0.3s ease;
-        }
-
-        @keyframes modalFade {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
 
         .modal.show { display: flex; }
@@ -1025,41 +811,36 @@
             border-radius: 24px;
             width: 90%;
             max-width: 450px;
-            box-shadow: 0 32px 96px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 32px 96px rgba(0, 0, 0, 0.8);
             max-height: 90vh;
             overflow-y: auto;
-            animation: modalSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes modalSlide {
-            from { opacity: 0; transform: translateY(30px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .modal-content h3 {
             font-size: 24px;
-            font-weight: 800;
+            font-weight: 700;
             margin-bottom: 20px;
-            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-lime));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .modal-content input[type="text"],
-        .modal-content input[type="email"] {
+        .modal-content input {
             width: 100%;
             padding: 14px 18px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
             border-radius: 14px;
             color: var(--text-primary);
             font-size: 14px;
             margin-bottom: 16px;
             outline: none;
-            transition: all 0.3s;
+            font-family: 'Space Grotesk', sans-serif;
         }
 
         .modal-content input:focus {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+            border-color: var(--accent-lime);
+            box-shadow: 0 0 0 4px rgba(0, 255, 136, 0.1);
         }
 
         .modal-buttons { display: flex; gap: 12px; }
@@ -1072,302 +853,17 @@
             cursor: pointer;
             font-weight: 700;
             font-size: 14px;
-            transition: all 0.3s;
+            font-family: 'Space Grotesk', sans-serif;
         }
 
-        .btn-cancel {
-            background: var(--glass-bg);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-confirm {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: white;
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
-        }
-
-        .btn-cancel:hover, .btn-confirm:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-        }
-
-        .user-profile-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(20px);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .user-profile-modal.show { display: flex; }
-
-        .user-profile-content {
-            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
-            border: 1px solid var(--glass-border);
-            border-radius: 32px;
-            width: 90%;
-            max-width: 400px;
-            overflow: hidden;
-            box-shadow: 0 32px 96px rgba(0, 0, 0, 0.7);
-            animation: profileSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-        }
-
-        @keyframes profileSlide {
-            from { opacity: 0; transform: translateY(50px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .profile-banner {
-            height: 120px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
-            position: relative;
-        }
-
-        .profile-banner::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="white" opacity="0.3"/><circle cx="80" cy="40" r="3" fill="white" opacity="0.2"/><circle cx="40" cy="80" r="2" fill="white" opacity="0.3"/></svg>');
-        }
-
-        .profile-avatar-large {
-            width: 100px;
-            height: 100px;
-            border-radius: 24px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            font-weight: 900;
-            margin: -50px auto 0;
-            border: 4px solid var(--bg-secondary);
-            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.4);
-            position: relative;
-            overflow: hidden;
-            background-size: cover;
-            background-position: center;
-        }
-
-        .profile-details {
-            padding: 24px;
-            text-align: center;
-        }
-
-        .profile-details h2 {
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
-        }
-
-        .profile-details .email {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-
-        .profile-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 24px;
-            font-size: 12px;
-            color: var(--success);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 24px;
-        }
-
-        .profile-status::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background: var(--success);
-            border-radius: 50%;
-            box-shadow: 0 0 16px var(--success);
-            animation: statusPulse 2s infinite;
-        }
-
-        .profile-status.offline {
-            background: rgba(113, 113, 122, 0.15);
-            border-color: rgba(113, 113, 122, 0.3);
-            color: var(--text-tertiary);
-        }
-
-        .profile-status.offline::before {
-            background: var(--text-tertiary);
-            box-shadow: none;
-            animation: none;
-        }
-
-        .profile-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        .profile-action-btn {
-            padding: 12px 24px;
-            border-radius: 14px;
-            border: none;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 13px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .profile-action-btn.primary {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: white;
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
-        }
-
-        .profile-action-btn.secondary {
-            background: var(--glass-bg);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .profile-action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-        }
-
-        .close-profile-btn {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.5);
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            z-index: 10;
-        }
-
-        .close-profile-btn:hover {
-            background: rgba(239, 68, 68, 0.8);
-            transform: rotate(90deg);
-        }
-
-        .avatar-upload-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .avatar-preview {
-            width: 120px;
-            height: 120px;
-            border-radius: 24px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-            font-weight: 900;
-            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
-            overflow: hidden;
-            background-size: cover;
-            background-position: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .avatar-preview:hover {
-            transform: scale(1.05);
-            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.6);
-        }
-
-        .avatar-upload-btn {
-            padding: 10px 20px;
-            background: var(--glass-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            color: var(--text-primary);
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .avatar-upload-btn:hover {
-            background: var(--accent-primary);
-            border-color: var(--accent-primary);
-        }
-
-        .friend-checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: var(--bg-tertiary);
-            border-radius: 14px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid transparent;
-        }
-
-        .friend-checkbox-item:hover {
-            background: rgba(99, 102, 241, 0.1);
-            border-color: var(--accent-primary);
-            transform: translateX(4px);
-        }
-
-        .friend-checkbox-item.selected {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: var(--accent-primary);
-        }
-
-        .friend-checkbox-item input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            accent-color: var(--accent-primary);
-            cursor: pointer;
-        }
-
-        .friend-checkbox-info { flex: 1; }
-
-        .friend-checkbox-name {
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        .friend-checkbox-email {
-            font-size: 12px;
-            color: var(--text-tertiary);
-        }
-
+        /* Call Modal */
         .call-modal {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(135deg, rgba(3, 3, 8, 0.98), rgba(10, 10, 18, 0.98));
-            backdrop-filter: blur(24px);
-            z-index: 3000;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 2000;
             align-items: center;
             justify-content: center;
         }
@@ -1377,42 +873,35 @@
         .call-content {
             background: var(--bg-secondary);
             border: 1px solid var(--glass-border);
-            padding: 56px 48px;
+            padding: 48px;
             border-radius: 32px;
             width: 90%;
-            max-width: 480px;
+            max-width: 400px;
             text-align: center;
-            box-shadow: 0 32px 96px rgba(0, 0, 0, 0.7);
-            animation: callSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes callSlideIn {
-            from { opacity: 0; transform: scale(0.9) translateY(30px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            box-shadow: 0 32px 96px rgba(0, 0, 0, 0.8);
         }
 
         .call-avatar {
-            width: 160px;
-            height: 160px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            background: linear-gradient(135deg, var(--accent-lime), var(--accent-blue));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 64px;
-            font-weight: 900;
-            margin: 0 auto 32px;
-            box-shadow: 0 16px 48px rgba(99, 102, 241, 0.5);
+            font-size: 48px;
+            font-weight: 700;
+            margin: 0 auto 24px;
+            box-shadow: 0 16px 48px rgba(0, 255, 136, 0.4);
             animation: callPulse 2s infinite;
             overflow: hidden;
             background-size: cover;
             background-position: center;
-            border: 4px solid rgba(255, 255, 255, 0.1);
         }
 
         @keyframes callPulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 16px 48px rgba(99, 102, 241, 0.5); }
-            50% { transform: scale(1.08); box-shadow: 0 24px 64px rgba(99, 102, 241, 0.7); }
+            0%, 100% { transform: scale(1); box-shadow: 0 16px 48px rgba(0, 255, 136, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 20px 60px rgba(0, 255, 136, 0.6); }
         }
 
         .call-status {
@@ -1425,32 +914,31 @@
         }
 
         .call-name {
-            font-size: 36px;
-            font-weight: 900;
-            margin-bottom: 48px;
-            background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-lime));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
         }
 
-        .call-controls { display: flex; gap: 24px; justify-content: center; }
+        .call-controls { display: flex; gap: 20px; justify-content: center; }
 
         .call-btn {
-            width: 72px;
-            height: 72px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 24px;
             transition: all 0.3s;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
 
-        .call-btn:hover { transform: scale(1.15); }
+        .call-btn:hover { transform: scale(1.1); }
 
         .btn-mute {
             background: var(--glass-bg);
@@ -1458,23 +946,24 @@
             border: 1px solid var(--glass-border);
         }
 
-        .btn-mute.muted { 
-            background: linear-gradient(135deg, var(--warning), #d97706); 
+        .btn-mute.muted {
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
             color: white;
         }
 
         .btn-end-call {
-            background: linear-gradient(135deg, var(--danger), #dc2626);
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
             color: white;
         }
 
+        /* Incoming Call */
         .incoming-call-modal {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(24px);
-            z-index: 4000;
+            backdrop-filter: blur(20px);
+            z-index: 3000;
             align-items: center;
             justify-content: center;
         }
@@ -1482,34 +971,28 @@
         .incoming-call-modal.show { display: flex; }
 
         .incoming-call-content {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
-            border: 1px solid var(--glass-border);
-            padding: 64px 48px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 212, 255, 0.1));
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            padding: 48px;
             border-radius: 32px;
             width: 90%;
-            max-width: 480px;
+            max-width: 400px;
             text-align: center;
             box-shadow: 0 32px 96px rgba(0, 0, 0, 0.8);
-            animation: incomingSlide 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes incomingSlide {
-            from { opacity: 0; transform: translateY(60px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .incoming-avatar {
-            width: 160px;
-            height: 160px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            background: linear-gradient(135deg, var(--accent-lime), var(--accent-blue));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 64px;
-            font-weight: 900;
-            margin: 0 auto 32px;
-            border: 4px solid rgba(255, 255, 255, 0.15);
+            font-size: 48px;
+            font-weight: 700;
+            margin: 0 auto 24px;
+            border: 4px solid rgba(0, 255, 136, 0.3);
             animation: incomingPulse 1.5s infinite;
             overflow: hidden;
             background-size: cover;
@@ -1517,8 +1000,8 @@
         }
 
         @keyframes incomingPulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.6); }
-            50% { transform: scale(1.1); box-shadow: 0 0 0 50px rgba(99, 102, 241, 0); }
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.5); }
+            50% { transform: scale(1.1); box-shadow: 0 0 0 40px rgba(0, 255, 136, 0); }
         }
 
         .incoming-label {
@@ -1531,22 +1014,21 @@
         }
 
         .incoming-name {
-            font-size: 40px;
-            font-weight: 900;
+            font-size: 32px;
+            font-weight: 700;
             margin-bottom: 8px;
-            background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-lime));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
         }
 
         .incoming-type {
             font-size: 14px;
             color: var(--text-secondary);
-            margin-bottom: 56px;
+            margin-bottom: 40px;
         }
 
-        .incoming-controls { display: flex; gap: 56px; justify-content: center; }
+        .incoming-controls { display: flex; gap: 40px; justify-content: center; }
 
         .incoming-btn {
             display: flex;
@@ -1557,28 +1039,28 @@
             transition: transform 0.3s;
         }
 
-        .incoming-btn:hover { transform: scale(1.15); }
+        .incoming-btn:hover { transform: scale(1.1); }
 
         .incoming-btn-circle {
-            width: 80px;
-            height: 80px;
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
             border: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
+            font-size: 28px;
             cursor: pointer;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
         }
 
-        .btn-accept { 
-            background: linear-gradient(135deg, var(--success), #059669); 
-            color: white;
+        .btn-accept {
+            background: linear-gradient(135deg, var(--accent-lime), var(--accent-blue));
+            color: var(--bg-primary);
         }
-        .btn-decline { 
-            background: linear-gradient(135deg, var(--danger), #dc2626); 
+
+        .btn-decline {
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
             color: white;
         }
 
@@ -1590,322 +1072,146 @@
             letter-spacing: 1px;
         }
 
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { 
-            background: var(--border-color); 
+            background: var(--glass-border); 
             border-radius: 3px;
         }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-lime); }
 
+        /* Responsive */
         @media (max-width: 1200px) {
-            .app { grid-template-columns: 72px 260px 1fr 260px; }
+            .app { grid-template-columns: 260px 1fr 280px; gap: 16px; padding: 16px; }
         }
 
         @media (max-width: 900px) {
             .app {
                 grid-template-columns: 1fr;
+                padding: 12px;
                 padding-bottom: 80px;
-                padding-top: 60px;
             }
             
-            .nav-left, .sidebar-workspaces, .sidebar-right {
-                display: none !important;
-            }
-            
-            .mobile-nav, .mobile-header {
-                display: block !important;
-            }
-            
-            .chat-main {
-                display: flex !important;
-                z-index: 10;
-                position: relative;
-            }
-            
-            .chat-header {
-                padding: 12px 16px;
-                z-index: 11;
-            }
-            
-            .messages-area {
-                padding: 16px;
-                flex: 1;
-                overflow-y: auto;
-            }
-            
-            .input-container {
-                padding: 12px 16px;
-                z-index: 12;
-                position: relative;
-                background: var(--bg-primary);
-            }
-            
-            .input-wrapper {
-                position: relative;
-                z-index: 13;
-            }
-            
-            .message-input {
-                font-size: 16px !important;
-                min-height: 44px;
-                cursor: text;
-                -webkit-appearance: none;
-            }
-            
-            .message-input:focus {
-                outline: none;
-            }
-            
-            .btn-send {
-                min-width: 44px;
-                min-height: 44px;
-            }
-            
-            .input-btn {
-                min-width: 44px;
-                min-height: 44px;
-            }
-            
-            .message-content {
-                max-width: 85%;
-                padding: 12px 16px;
-            }
-            
-            .message-avatar {
-                width: 36px;
-                height: 36px;
-                font-size: 14px;
-            }
-            
-            .btn-action {
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-            
-            .mobile-sidebar {
-                display: block;
+            .sidebar-left, .right-panel {
+                display: none;
             }
         }
 
         @media (max-width: 480px) {
-            .chat-header {
-                padding: 10px 12px;
-            }
-            
-            .messages-area {
-                padding: 12px;
-            }
-            
-            .input-container {
-                padding: 10px 12px;
-            }
-            
-            .message-content {
-                max-width: 90%;
-                padding: 10px 14px;
-            }
-            
-            .call-content {
-                padding: 40px 24px;
-                width: 95%;
-            }
-            
-            .call-avatar {
-                width: 120px;
-                height: 120px;
-                font-size: 48px;
-            }
-            
-            .call-name {
-                font-size: 28px;
-            }
-            
-            .call-btn {
-                width: 60px;
-                height: 60px;
-                font-size: 24px;
-            }
-            
-            .incoming-call-content {
-                padding: 48px 24px;
-                width: 95%;
-            }
-            
-            .incoming-avatar {
-                width: 120px;
-                height: 120px;
-                font-size: 48px;
-            }
-            
-            .incoming-name {
-                font-size: 28px;
-            }
-            
-            .incoming-btn-circle {
-                width: 64px;
-                height: 64px;
-                font-size: 28px;
-            }
+            .chat-header { padding: 16px 20px; }
+            .chat-header-info h2 { font-size: 18px; }
+            .messages-area { padding: 16px; }
+            .message-content { max-width: 85%; }
         }
     </style>
 </head>
 <body>
-    <div class="mobile-header">
-        <div class="mobile-header-content">
-            <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">☰</button>
-            <div class="mobile-header-title">Sniggers</div>
-            <div style="width: 40px;"></div>
-        </div>
-    </div>
-
-    <div class="mobile-sidebar-overlay" onclick="toggleMobileSidebar()"></div>
-    <div class="mobile-sidebar" id="mobileSidebar">
-        <div class="profile-card" onclick="showMyProfileModal(); toggleMobileSidebar();">
-            <div class="profile-header">
-                <div class="profile-avatar" id="mobileUserAvatar">?</div>
-                <div class="profile-info">
-                    <h3 id="mobileUserName">Loading...</h3>
-                    <p id="mobileUserEmail">loading...</p>
-                    <div class="status-badge">Online</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="channel-group">
-            <div class="channel-group-title">Channels</div>
-            <div id="mobileChannelsList"></div>
-        </div>
-
-        <div class="channel-group">
-            <div class="channel-group-title">Direct Messages</div>
-            <div id="mobileFriendsList"></div>
-        </div>
-        
-        <div class="users-section" style="margin-top: 24px;">
-            <div class="section-title">
-                <span>Add Friend</span>
-            </div>
-            <div class="add-friend-wrapper">
-                <input type="text" id="mobileFriendNickname" class="add-friend-input" placeholder="Enter exact nickname...">
-                <button class="add-friend-btn" onclick="addFriendFromMobile()" title="Send friend request">➕</button>
-            </div>
-        </div>
-        
-        <div class="users-section">
-            <div class="section-title">
-                <span>Friend Requests</span>
-                <span class="online-count" id="mobileRequestCount">0</span>
-            </div>
-            <div id="mobileFriendRequestsList"></div>
-        </div>
-        
-        <button class="btn-action" onclick="showLogoutModal(); toggleMobileSidebar();" style="margin-top: 24px; width: 100%; justify-content: center;">
-            🚪 Logout
-        </button>
-    </div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
 
     <div class="app">
-        <nav class="nav-left">
-            <div class="logo">S</div>
-            <button class="nav-icon active" title="Messages" onclick="switchNav(this, 'messages')">💬</button>
-            <button class="nav-icon" title="Teams" onclick="switchNav(this, 'teams')"></button>
-            <button class="nav-icon" title="Calendar" onclick="switchNav(this, 'calendar')"></button>
-            <button class="nav-icon" title="Files" onclick="switchNav(this, 'files')">📁</button>
-            <div class="nav-spacer"></div>
-            <button class="nav-icon" onclick="showMyProfileModal()" title="My Profile">👤</button>
-            <button class="nav-icon" onclick="showLogoutModal()" title="Logout">🚪</button>
-        </nav>
-
-        <div class="sidebar-workspaces">
-            <div class="workspace-header">
-                <div class="workspace-title">Sniggers</div>
-                <button class="btn-icon" onclick="showModal()" title="Create channel">+</button>
+        <!-- Left Sidebar -->
+        <aside class="sidebar-left">
+            <div class="user-profile" onclick="showProfileModal()">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">?</div>
+                    <div class="user-details">
+                        <h3 id="userName">Loading...</h3>
+                        <div class="user-status">Online</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="channel-group">
-                <div class="channel-group-title">Channels</div>
-                <div id="channelsList"></div>
+            <div class="sidebar-content">
+                <div class="section">
+                    <div class="section-header">
+                        <span>Channels</span>
+                        <button class="add-btn" onclick="showCreateChannelModal()">+</button>
+                    </div>
+                    <div id="channelsList"></div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <span>Direct Messages</span>
+                    </div>
+                    <div id="friendsList"></div>
+                </div>
             </div>
 
-            <div class="channel-group">
-                <div class="channel-group-title">Direct Messages</div>
-                <div id="friendsList"></div>
+            <div class="sidebar-footer">
+                <button class="btn" onclick="showProfileModal()"> Profile</button>
+                <button class="btn primary" onclick="showLogoutModal()">🚪 Logout</button>
             </div>
-        </div>
+        </aside>
 
-        <main class="chat-main">
+        <!-- Main Chat -->
+        <main class="main">
             <div class="chat-header">
                 <div class="chat-header-info">
                     <h2 id="chatName">Select a chat</h2>
                     <p id="chatInfo">Start a conversation</p>
                 </div>
                 <div class="chat-actions">
-                    <button class="btn-action" id="callBtn" onclick="startCall()" disabled> Voice Call</button>
-                    <button class="btn-action" onclick="showAddMemberModal()" id="addMemberBtn" style="display:none;">👥 Add Members</button>
+                    <button class="btn" id="callBtn" onclick="startCall()" disabled>📞 Call</button>
+                    <button class="btn primary" onclick="showAddMemberModal()" id="addMemberBtn" style="display:none;">👥 Add Members</button>
                 </div>
             </div>
 
             <div class="messages-area" id="messages">
                 <div style="text-align: center; color: var(--text-tertiary); padding: 60px 20px;">
-                    <div style="font-size: 64px; margin-bottom: 16px; opacity: 0.5;"></div>
-                    <div style="font-size: 20px; font-weight: 800; margin-bottom: 8px;">Welcome to Sniggers</div>
+                    <div style="font-size: 64px; margin-bottom: 16px; opacity: 0.5;">💬</div>
+                    <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Welcome to Sniggers</div>
                     <div style="font-size: 14px;">Select a channel or friend to start messaging</div>
                 </div>
             </div>
 
-            <div class="input-container">
-                <div class="input-wrapper">
-                    <div class="input-actions-left">
-                        <button class="input-btn" title="Emoji">😊</button>
-                        <button class="input-btn" title="Attach"></button>
-                    </div>
-                    <input type="text" class="message-input" id="msgInput" placeholder="Message..." onkeypress="handleKey(event)">
-                    <button class="btn-send" onclick="sendMsg()" title="Send">➤</button>
+            <div class="input-container" style="position: relative;">
+                <div class="input-actions">
+                    <button class="input-btn" onclick="toggleEmojiPicker()">😊</button>
+                    <button class="input-btn">📎</button>
+                </div>
+                <input type="text" class="message-input" id="msgInput" placeholder="Message..." onkeypress="handleKey(event)">
+                <button class="btn-send" onclick="sendMsg()">➤</button>
+                
+                <div class="emoji-picker" id="emojiPicker">
+                    <div class="emoji-grid" id="emojiGrid"></div>
                 </div>
             </div>
         </main>
 
-        <aside class="sidebar-right">
-            <div class="profile-card" onclick="showMyProfileModal()">
-                <div class="profile-header">
-                    <div class="profile-avatar" id="userAvatar">?</div>
-                    <div class="profile-info">
-                        <h3 id="userName">Loading...</h3>
-                        <p id="userEmail">loading...</p>
-                        <div class="status-badge">Online</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="users-section">
-                <div class="section-title">
-                    <span>Add Friend</span>
-                </div>
-                <div class="add-friend-wrapper">
-                    <input type="text" id="friendNickname" class="add-friend-input" placeholder="Enter exact nickname...">
-                    <button class="add-friend-btn" onclick="addFriend()" title="Send friend request">➕</button>
-                </div>
-            </div>
-
-            <div class="users-section">
-                <div class="section-title">
+        <!-- Right Panel -->
+        <aside class="right-panel">
+            <div class="panel-section">
+                <div class="panel-title">
                     <span>Friend Requests</span>
-                    <span class="online-count" id="requestCount">0</span>
+                    <span class="panel-count" id="requestCount">0</span>
                 </div>
                 <div id="friendRequestsList"></div>
             </div>
 
-            <div class="users-section">
-                <div class="section-title">
+            <div class="panel-section">
+                <div class="panel-title">
+                    <span>Add Friend</span>
+                </div>
+                <div class="add-friend-wrapper">
+                    <input type="text" id="friendNickname" class="add-friend-input" placeholder="Enter nickname...">
+                    <button class="add-friend-btn" onclick="addFriend()">➕</button>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-title">
                     <span>Online Now</span>
-                    <span class="online-count" id="onlineCount">0</span>
+                    <span class="panel-count" id="onlineCount">0</span>
                 </div>
                 <div id="onlineUsersList"></div>
             </div>
 
-            <div class="users-section">
-                <div class="section-title">
+            <div class="panel-section">
+                <div class="panel-title">
                     <span>Offline</span>
                     <span id="offlineCount">0</span>
                 </div>
@@ -1914,30 +1220,24 @@
         </aside>
     </div>
 
-    <div class="mobile-nav">
-        <div class="mobile-nav-items">
-            <button class="mobile-nav-item active" onclick="switchMobileNav(this, 'chat')">
-                <span class="icon">💬</span>
-                <span class="label">Chat</span>
-            </button>
-            <button class="mobile-nav-item" onclick="switchMobileNav(this, 'contacts')">
-                <span class="icon">👥</span>
-                <span class="label">Contacts</span>
-            </button>
-            <button class="mobile-nav-item" onclick="showMyProfileModal()">
-                <span class="icon"></span>
-                <span class="label">Profile</span>
-            </button>
-        </div>
+    <!-- Emoji Picker -->
+    <div class="emoji-picker" id="emojiPicker">
+        <div class="emoji-grid" id="emojiGrid"></div>
     </div>
 
-    <div class="modal" id="modal">
+    <!-- Modals -->
+    <div class="modal" id="profileModal">
         <div class="modal-content">
-            <h3>Create Channel</h3>
-            <input type="text" id="channelName" placeholder="Channel name...">
+            <h3>My Profile</h3>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div class="user-avatar" id="avatarPreview" style="width: 100px; height: 100px; margin: 0 auto 16px; font-size: 40px;" onclick="document.getElementById('avatarInput').click()">?</div>
+                <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)">
+                <button class="btn" onclick="document.getElementById('avatarInput').click()">📷 Change Avatar</button>
+            </div>
+            <input type="text" id="profileName" placeholder="Display Name">
             <div class="modal-buttons">
-                <button class="btn-cancel" onclick="hideModal()">Cancel</button>
-                <button class="btn-confirm" onclick="createChannel()">Create</button>
+                <button class="btn" onclick="hideProfileModal()">Cancel</button>
+                <button class="btn primary" onclick="saveProfile()">Save</button>
             </div>
         </div>
     </div>
@@ -1947,45 +1247,19 @@
             <h3>Logout?</h3>
             <p style="color: var(--text-secondary); margin-bottom: 24px;">You will be redirected to the login page</p>
             <div class="modal-buttons">
-                <button class="btn-cancel" onclick="hideLogoutModal()">Cancel</button>
-                <button class="btn-confirm" onclick="confirmLogout()" style="background: linear-gradient(135deg, var(--danger), #dc2626);">Logout</button>
+                <button class="btn" onclick="hideLogoutModal()">Cancel</button>
+                <button class="btn primary" onclick="confirmLogout()" style="background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));">Logout</button>
             </div>
         </div>
     </div>
 
-    <div class="modal" id="profileModal">
+    <div class="modal" id="createChannelModal">
         <div class="modal-content">
-            <h3>My Profile</h3>
-            <div class="avatar-upload-area">
-                <div class="avatar-preview" id="avatarPreview" onclick="document.getElementById('avatarInput').click()">?</div>
-                <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)">
-                <button class="avatar-upload-btn" onclick="document.getElementById('avatarInput').click()"> Change Avatar</button>
-                <p style="font-size: 11px; color: var(--text-tertiary); text-align: center;">Click to upload from your device (max 1MB)</p>
-            </div>
-            <div style="margin-bottom: 16px;">
-                <label style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; display: block; font-weight: 600;">Display Name</label>
-                <input type="text" id="profileName" placeholder="Your name">
-            </div>
+            <h3>Create Channel</h3>
+            <input type="text" id="newChannelName" placeholder="Channel name...">
             <div class="modal-buttons">
-                <button class="btn-cancel" onclick="hideProfileModal()">Cancel</button>
-                <button class="btn-confirm" onclick="saveProfile()">Save Changes</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="user-profile-modal" id="userProfileModal">
-        <div class="user-profile-content">
-            <button class="close-profile-btn" onclick="hideUserProfileModal()">✕</button>
-            <div class="profile-banner"></div>
-            <div class="profile-avatar-large" id="userProfileAvatar">?</div>
-            <div class="profile-details">
-                <h2 id="userProfileName">User Name</h2>
-                <div class="email" id="userProfileEmail">user@email.com</div>
-                <div class="profile-status" id="userProfileStatus">Online</div>
-                <div class="profile-actions">
-                    <button class="profile-action-btn primary" onclick="messageUser()"> Message</button>
-                    <button class="profile-action-btn secondary" onclick="callUser()">📞 Call</button>
-                </div>
+                <button class="btn" onclick="hideCreateChannelModal()">Cancel</button>
+                <button class="btn primary" onclick="createChannel()">Create</button>
             </div>
         </div>
     </div>
@@ -1996,12 +1270,13 @@
             <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 13px;">Select friends to add to <strong id="targetChannelName"></strong></p>
             <div id="friendsCheckboxesList" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;"></div>
             <div class="modal-buttons">
-                <button class="btn-cancel" onclick="hideAddMemberModal()">Cancel</button>
-                <button class="btn-confirm" onclick="addMembersToChannel()">Add Selected</button>
+                <button class="btn" onclick="hideAddMemberModal()">Cancel</button>
+                <button class="btn primary" onclick="addMembersToChannel()">Add Selected</button>
             </div>
         </div>
     </div>
 
+    <!-- Call Modal -->
     <div class="call-modal" id="callModal">
         <div class="call-content">
             <div class="call-avatar" id="callAvatar">?</div>
@@ -2014,12 +1289,13 @@
         </div>
     </div>
 
+    <!-- Incoming Call Modal -->
     <div class="incoming-call-modal" id="incomingCallModal">
         <div class="incoming-call-content">
             <div class="incoming-avatar" id="incomingAvatar">?</div>
             <div class="incoming-label">Incoming Call</div>
             <div class="incoming-name" id="incomingName">User</div>
-            <div class="incoming-type"> Voice Call</div>
+            <div class="incoming-type">🎤 Voice Call</div>
             <div class="incoming-controls">
                 <div class="incoming-btn" onclick="declineIncomingCall()">
                     <button class="incoming-btn-circle btn-decline">✕</button>
@@ -2071,7 +1347,6 @@
         let callId = null;
         let pendingIncomingCall = null;
         let currentUserData = null;
-        let selectedUserProfile = null;
 
         const rtcConfig = {
             iceServers: [
@@ -2090,28 +1365,32 @@
             googHighpassFilter: true
         };
 
-        function isMobileDevice() {
-            return window.innerWidth <= 900 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        // Emoji Picker
+        const emojis = ['😊', '😂', '❤️', '🔥', '', '🎉', '', '🤔', '😎', '🥳', '💯', '✨', '🙌', '💪', '', '🌟', '', '🤗', '😭', '🙏', '👏', '💕', '🌈', '⭐', '🎯', '💎', '🚀', '💡', '', '🌺', '🍕', '☕'];
+
+        function initEmojiPicker() {
+            const grid = document.getElementById('emojiGrid');
+            emojis.forEach(emoji => {
+                const btn = document.createElement('button');
+                btn.className = 'emoji-item';
+                btn.textContent = emoji;
+                btn.onclick = () => insertEmoji(emoji);
+                grid.appendChild(btn);
+            });
         }
 
-        window.toggleMobileSidebar = function() {
-            const sidebar = document.getElementById('mobileSidebar');
-            const overlay = document.querySelector('.mobile-sidebar-overlay');
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('show');
-        };
+        function toggleEmojiPicker() {
+            document.getElementById('emojiPicker').classList.toggle('show');
+        }
 
-        window.switchMobileNav = function(el, section) {
-            document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-            
-            if (section === 'chat') {
-                document.querySelector('.chat-main').style.display = 'flex';
-            } else if (section === 'contacts') {
-                toggleMobileSidebar();
-            }
-        };
+        function insertEmoji(emoji) {
+            const input = document.getElementById('msgInput');
+            input.value += emoji;
+            input.focus();
+            document.getElementById('emojiPicker').classList.remove('show');
+        }
 
+        // Listen to friend requests
         function listenToFriendRequests() {
             if (friendRequestsUnsubscribe) friendRequestsUnsubscribe();
             
@@ -2120,20 +1399,13 @@
             
             friendRequestsUnsubscribe = onSnapshot(q, async (snapshot) => {
                 const container = document.getElementById('friendRequestsList');
-                const mobileContainer = document.getElementById('mobileFriendRequestsList');
                 container.innerHTML = '';
-                if (mobileContainer) mobileContainer.innerHTML = '';
                 
                 let requestCount = 0;
                 
                 if (snapshot.empty) {
-                    const noRequestsHTML = '<div class="no-requests">No pending requests</div>';
-                    container.innerHTML = noRequestsHTML;
-                    if (mobileContainer) mobileContainer.innerHTML = noRequestsHTML;
+                    container.innerHTML = '<div class="no-items">No pending requests</div>';
                     document.getElementById('requestCount').textContent = '0';
-                    if (document.getElementById('mobileRequestCount')) {
-                        document.getElementById('mobileRequestCount').textContent = '0';
-                    }
                     return;
                 }
                 
@@ -2146,33 +1418,29 @@
                         const avatarStyle = userData.avatar ? `background-image: url(${userData.avatar});` : '';
                         const initial = (userData.name || '?').charAt(0).toUpperCase();
                         
-                        const itemHTML = `
-                            <div class="friend-request-item">
-                                <div class="friend-request-header">
-                                    <div class="friend-request-avatar" style="${avatarStyle}">
-                                        ${!userData.avatar ? initial : ''}
-                                    </div>
-                                    <div class="friend-request-info">
-                                        <div class="friend-request-name">${userData.name || 'Unknown'}</div>
-                                        <div class="friend-request-text">wants to add you as a friend</div>
-                                    </div>
+                        const item = document.createElement('div');
+                        item.className = 'friend-request';
+                        item.innerHTML = `
+                            <div class="friend-request-header">
+                                <div class="friend-request-avatar" style="${avatarStyle}">
+                                    ${!userData.avatar ? initial : ''}
                                 </div>
-                                <div class="friend-request-actions">
-                                    <button class="friend-request-btn accept" onclick="acceptFriendRequest('${docSnap.id}', '${requestData.from}')">✓ Accept</button>
-                                    <button class="friend-request-btn decline" onclick="declineFriendRequest('${docSnap.id}')">✕ Decline</button>
+                                <div class="friend-request-info">
+                                    <div class="friend-request-name">${userData.name || 'Unknown'}</div>
+                                    <div class="friend-request-text">wants to add you as a friend</div>
                                 </div>
                             </div>
+                            <div class="friend-request-actions">
+                                <button class="friend-request-btn accept" onclick="acceptFriendRequest('${docSnap.id}', '${requestData.from}')">✓ Accept</button>
+                                <button class="friend-request-btn decline" onclick="declineFriendRequest('${docSnap.id}')">✕ Decline</button>
+                            </div>
                         `;
-                        container.innerHTML += itemHTML;
-                        if (mobileContainer) mobileContainer.innerHTML += itemHTML;
+                        container.appendChild(item);
                         requestCount++;
                     }
                 }
                 
                 document.getElementById('requestCount').textContent = requestCount;
-                if (document.getElementById('mobileRequestCount')) {
-                    document.getElementById('mobileRequestCount').textContent = requestCount;
-                }
             });
         }
 
@@ -2229,18 +1497,18 @@
                     const initial = (user.name || '?').charAt(0).toUpperCase();
                     
                     const item = document.createElement('div');
-                    item.className = 'user-item';
+                    item.className = 'user-card';
                     item.innerHTML = `
-                        <div class="user-avatar-small" style="${avatarStyle}">
+                        <div class="user-card-avatar" style="${avatarStyle}">
                             ${!user.avatar ? initial : ''}
-                            <div class="status-dot ${isOnline ? 'online' : 'offline'}"></div>
+                            <div class="status ${isOnline ? 'online' : 'offline'}"></div>
                         </div>
-                        <div class="user-item-info">
-                            <div class="user-item-name">${user.name || 'Unknown'}</div>
-                            <div class="user-item-status ${isOnline ? 'online-text' : ''}">${isOnline ? 'Online' : 'Offline'}</div>
+                        <div class="user-card-info">
+                            <div class="user-card-name">${user.name || 'Unknown'}</div>
+                            <div class="user-card-status ${isOnline ? 'online-text' : ''}">${isOnline ? 'Online' : 'Offline'}</div>
                         </div>
                     `;
-                    item.onclick = () => showUserProfile(uid, user);
+                    item.onclick = () => openChat(uid, 'friend', user.name);
                     
                     if (isOnline) {
                         onlineList.appendChild(item);
@@ -2282,7 +1550,6 @@
                 }
 
                 document.getElementById('userName').textContent = displayName;
-                document.getElementById('userEmail').textContent = user.email;
                 
                 const avatarEl = document.getElementById('userAvatar');
                 if (avatar) {
@@ -2292,78 +1559,38 @@
                     avatarEl.textContent = displayName.charAt(0).toUpperCase();
                 }
                 
-                if (document.getElementById('mobileUserName')) {
-                    document.getElementById('mobileUserName').textContent = displayName;
-                    document.getElementById('mobileUserEmail').textContent = user.email;
-                    
-                    const mobileAvatarEl = document.getElementById('mobileUserAvatar');
-                    if (avatar) {
-                        mobileAvatarEl.style.backgroundImage = `url(${avatar})`;
-                        mobileAvatarEl.textContent = '';
-                    } else {
-                        mobileAvatarEl.textContent = displayName.charAt(0).toUpperCase();
-                    }
-                }
-                
                 const finalDoc = await getDoc(doc(db, 'users', user.uid));
                 const finalData = finalDoc.data();
                 loadChannels(finalData.channels || []);
                 loadFriends(finalData.friends || []);
                 await updateDoc(doc(db, 'users', user.uid), { status: 'online' });
 
-                listenForCalls();
                 listenToUsers();
                 listenToFriendRequests();
 
             } catch (error) {
                 console.error("Data load error:", error);
-                const fallbackName = user.displayName || user.email.split('@')[0] || 'User';
-                document.getElementById('userName').textContent = fallbackName;
-                document.getElementById('userAvatar').textContent = fallbackName.charAt(0).toUpperCase();
             }
         });
 
         function loadChannels(channels) {
             const container = document.getElementById('channelsList');
-            const mobileContainer = document.getElementById('mobileChannelsList');
             container.innerHTML = '';
-            if (mobileContainer) mobileContainer.innerHTML = '';
-            
             channels.forEach(id => {
                 const div = document.createElement('div');
-                div.className = 'channel-item';
+                div.className = 'nav-item';
                 div.innerHTML = `
-                    <div class="channel-icon">#</div>
-                    <div class="channel-info">
-                        <div class="channel-name">${id}</div>
-                        <div class="channel-meta">Channel</div>
-                    </div>
-                    <button class="add-member-btn" onclick="openAddMemberModal('${id}', event)" title="Add members">+</button>
+                    <div class="nav-icon">#</div>
+                    <div class="nav-label">${id}</div>
                 `;
-                div.onclick = function(e) { 
-                    if (e.target.classList.contains('add-member-btn')) return;
-                    openChat(id, 'channel', null, this); 
-                    if (isMobileDevice()) toggleMobileSidebar();
-                };
+                div.onclick = function() { openChat(id, 'channel', null, this); };
                 container.appendChild(div);
-                if (mobileContainer) {
-                    const mobileDiv = div.cloneNode(true);
-                    mobileDiv.onclick = function(e) { 
-                        if (e.target.classList.contains('add-member-btn')) return;
-                        openChat(id, 'channel', null, this); 
-                        toggleMobileSidebar();
-                    };
-                    mobileContainer.appendChild(mobileDiv);
-                }
             });
         }
 
         async function loadFriends(friends) {
             const container = document.getElementById('friendsList');
-            const mobileContainer = document.getElementById('mobileFriendsList');
             container.innerHTML = '';
-            if (mobileContainer) mobileContainer.innerHTML = '';
-            
             for (const fid of friends) {
                 try {
                     const fdoc = await getDoc(doc(db, 'users', fid));
@@ -2371,87 +1598,26 @@
                         const fdata = fdoc.data();
                         const avatarStyle = fdata.avatar ? `background-image: url(${fdata.avatar});` : '';
                         const div = document.createElement('div');
-                        div.className = 'channel-item';
+                        div.className = 'nav-item';
                         div.innerHTML = `
-                            <div class="channel-icon" style="background: linear-gradient(135deg, #10b981, #059669); ${avatarStyle}">
+                            <div class="nav-icon" style="background: linear-gradient(135deg, #10b981, #059669); ${avatarStyle}">
                                 ${!fdata.avatar ? fdata.name.charAt(0).toUpperCase() : ''}
                             </div>
-                            <div class="channel-info">
-                                <div class="channel-name">${fdata.name}</div>
-                                <div class="channel-meta">Direct message</div>
-                            </div>
+                            <div class="nav-label">${fdata.name}</div>
                         `;
-                        div.onclick = function() { 
-                            openChat(fid, 'friend', fdata.name, this);
-                            if (isMobileDevice()) toggleMobileSidebar();
-                        };
+                        div.onclick = function() { openChat(fid, 'friend', fdata.name, this); };
                         container.appendChild(div);
-                        
-                        if (mobileContainer) {
-                            const mobileDiv = div.cloneNode(true);
-                            mobileDiv.onclick = function() { 
-                                openChat(fid, 'friend', fdata.name, this);
-                                toggleMobileSidebar();
-                            };
-                            mobileContainer.appendChild(mobileDiv);
-                        }
                     }
                 } catch (error) { console.error('Friend load error:', error); }
             }
         }
 
-        window.showUserProfile = function(uid, userData) {
-            selectedUserProfile = { uid, ...userData };
-            document.getElementById('userProfileName').textContent = userData.name || 'Unknown';
-            document.getElementById('userProfileEmail').textContent = userData.email || 'No email';
-            
-            const avatarEl = document.getElementById('userProfileAvatar');
-            if (userData.avatar) {
-                avatarEl.style.backgroundImage = `url(${userData.avatar})`;
-                avatarEl.textContent = '';
-            } else {
-                avatarEl.style.backgroundImage = '';
-                avatarEl.textContent = (userData.name || '?').charAt(0).toUpperCase();
-            }
-            
-            const statusEl = document.getElementById('userProfileStatus');
-            if (userData.status === 'online') {
-                statusEl.textContent = 'Online';
-                statusEl.className = 'profile-status';
-            } else {
-                statusEl.textContent = 'Offline';
-                statusEl.className = 'profile-status offline';
-            }
-            
-            document.getElementById('userProfileModal').classList.add('show');
-        };
-
-        window.hideUserProfileModal = function() {
-            document.getElementById('userProfileModal').classList.remove('show');
-            selectedUserProfile = null;
-        };
-
-        window.messageUser = function() {
-            if (!selectedUserProfile) return;
-            hideUserProfileModal();
-            openChat(selectedUserProfile.uid, 'friend', selectedUserProfile.name);
-        };
-
-        window.callUser = function() {
-            if (!selectedUserProfile) return;
-            hideUserProfileModal();
-            openChat(selectedUserProfile.uid, 'friend', selectedUserProfile.name);
-            setTimeout(() => startCall(), 100);
-        };
-
         window.openChat = async function(id, type, name = null, element = null) {
             currentChat = id; currentChatType = type; currentChatName = name;
             currentChannelId = type === 'channel' ? id : null;
             
-            document.querySelectorAll('.channel-item').forEach(i => i.classList.remove('active'));
-            if (element) {
-                element.classList.add('active');
-            }
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            if (element) element.classList.add('active');
             
             if (type === 'channel') {
                 document.getElementById('chatName').textContent = '#' + id;
@@ -2465,18 +1631,6 @@
                 document.getElementById('addMemberBtn').style.display = 'none';
             }
             loadMessages(id, type);
-            
-            if (isMobileDevice()) {
-                const sidebar = document.getElementById('mobileSidebar');
-                const overlay = document.querySelector('.mobile-sidebar-overlay');
-                if (sidebar.classList.contains('open')) {
-                    sidebar.classList.remove('open');
-                    overlay.classList.remove('show');
-                }
-                setTimeout(() => {
-                    document.getElementById('msgInput').focus();
-                }, 300);
-            }
         };
 
         function loadMessages(chatId, type) {
@@ -2534,13 +1688,8 @@
 
         window.handleKey = function(e) { if (e.key === 'Enter') sendMsg(); };
 
-        window.switchNav = function(el, section) {
-            document.querySelectorAll('.nav-icon').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-            console.log('Switched to:', section);
-        };
-
-        window.showMyProfileModal = function() {
+        // Profile Modal
+        window.showProfileModal = function() {
             document.getElementById('profileName').value = currentUserData?.name || currentUser.displayName || '';
             const preview = document.getElementById('avatarPreview');
             if (currentUserData?.avatar) {
@@ -2558,12 +1707,7 @@
         window.handleAvatarUpload = function(event) {
             const file = event.target.files[0];
             if (!file) return;
-            
-            if (file.size > 1000000) {
-                alert('File is too large! Max 1MB.');
-                return;
-            }
-            
+            if (file.size > 1000000) { alert('File is too large! Max 1MB.'); return; }
             const reader = new FileReader();
             reader.onload = function(e) {
                 const dataUrl = e.target.result;
@@ -2577,16 +1721,10 @@
         window.saveProfile = async function() {
             const newName = document.getElementById('profileName').value.trim();
             const newAvatar = document.getElementById('avatarPreview').dataset.newAvatar || currentUserData?.avatar || null;
-            
             if (!newName) { alert('Name cannot be empty'); return; }
-            
             try {
-                await updateDoc(doc(db, 'users', currentUser.uid), {
-                    name: newName,
-                    avatar: newAvatar
-                });
+                await updateDoc(doc(db, 'users', currentUser.uid), { name: newName, avatar: newAvatar });
                 currentUserData = { ...currentUserData, name: newName, avatar: newAvatar };
-                
                 document.getElementById('userName').textContent = newName;
                 const avatarEl = document.getElementById('userAvatar');
                 if (newAvatar) {
@@ -2596,19 +1734,6 @@
                     avatarEl.style.backgroundImage = '';
                     avatarEl.textContent = newName.charAt(0).toUpperCase();
                 }
-                
-                if (document.getElementById('mobileUserName')) {
-                    document.getElementById('mobileUserName').textContent = newName;
-                    const mobileAvatarEl = document.getElementById('mobileUserAvatar');
-                    if (newAvatar) {
-                        mobileAvatarEl.style.backgroundImage = `url(${newAvatar})`;
-                        mobileAvatarEl.textContent = '';
-                    } else {
-                        mobileAvatarEl.style.backgroundImage = '';
-                        mobileAvatarEl.textContent = newName.charAt(0).toUpperCase();
-                    }
-                }
-                
                 hideProfileModal();
                 alert('Profile saved!');
             } catch (error) {
@@ -2617,49 +1742,75 @@
             }
         };
 
+        // Logout
+        window.showLogoutModal = function() { document.getElementById('logoutModal').classList.add('show'); };
+        window.hideLogoutModal = function() { document.getElementById('logoutModal').classList.remove('show'); };
+
+        window.confirmLogout = async function() {
+            try {
+                if (currentUser) await updateDoc(doc(db, 'users', currentUser.uid), { status: 'offline' });
+                await signOut(auth);
+                hideLogoutModal();
+                window.location.href = 'index.html';
+            } catch (error) { console.error('Logout error:', error); alert('Error: ' + error.message); hideLogoutModal(); }
+        };
+
+        // Create Channel
+        window.showCreateChannelModal = function() { document.getElementById('createChannelModal').classList.add('show'); };
+        window.hideCreateChannelModal = function() { document.getElementById('createChannelModal').classList.remove('show'); };
+
+        window.createChannel = async function() {
+            const name = document.getElementById('newChannelName').value.trim();
+            if (!name) { alert('Enter channel name'); return; }
+            try {
+                await updateDoc(doc(db, 'users', currentUser.uid), { channels: arrayUnion(name) });
+                await setDoc(doc(db, 'channels', name), { name: name, createdBy: currentUser.uid, members: [currentUser.uid] }, { merge: true });
+                hideCreateChannelModal();
+                document.getElementById('newChannelName').value = '';
+                const udoc = await getDoc(doc(db, 'users', currentUser.uid));
+                loadChannels(udoc.data().channels || []);
+            } catch (error) { console.error('Channel create error:', error); alert('Error: ' + error.message); }
+        };
+
+        // Add Members
         window.showAddMemberModal = function() {
             if (!currentChannelId) return;
             openAddMemberModal(currentChannelId);
         };
 
-        window.openAddMemberModal = function(channelId, event) {
-            if (event) event.stopPropagation();
+        window.openAddMemberModal = function(channelId) {
             currentChannelId = channelId;
             document.getElementById('targetChannelName').textContent = '#' + channelId;
-            
             const container = document.getElementById('friendsCheckboxesList');
             container.innerHTML = '<p style="color: var(--text-tertiary); text-align: center;">Loading...</p>';
             
             getDoc(doc(db, 'users', currentUser.uid)).then(async (userDoc) => {
                 const friends = userDoc.data().friends || [];
                 container.innerHTML = '';
-                
                 if (friends.length === 0) {
-                    container.innerHTML = '<p style="color: var(--text-tertiary); text-align: center; padding: 20px;">No friends yet. Add friends first!</p>';
+                    container.innerHTML = '<p style="color: var(--text-tertiary); text-align: center; padding: 20px;">No friends yet!</p>';
                     return;
                 }
-                
                 for (const fid of friends) {
                     const fdoc = await getDoc(doc(db, 'users', fid));
                     if (fdoc.exists()) {
                         const fdata = fdoc.data();
                         const item = document.createElement('label');
-                        item.className = 'friend-checkbox-item';
+                        item.className = 'friend-request';
+                        item.style.marginBottom = '8px';
                         item.innerHTML = `
-                            <input type="checkbox" value="${fid}">
-                            <div class="friend-checkbox-info">
-                                <div class="friend-checkbox-name">${fdata.name}</div>
-                                <div class="friend-checkbox-email">${fdata.email || ''}</div>
+                            <div class="friend-request-header" style="margin-bottom: 0;">
+                                <input type="checkbox" value="${fid}" style="width: 20px; height: 20px; accent-color: var(--accent-lime);">
+                                <div class="friend-request-info">
+                                    <div class="friend-request-name">${fdata.name}</div>
+                                    <div class="friend-request-text">${fdata.email || ''}</div>
+                                </div>
                             </div>
                         `;
-                        item.querySelector('input').onchange = function() {
-                            item.classList.toggle('selected', this.checked);
-                        };
                         container.appendChild(item);
                     }
                 }
             });
-            
             document.getElementById('addMemberModal').classList.add('show');
         };
 
@@ -2668,7 +1819,6 @@
         window.addMembersToChannel = async function() {
             const checkboxes = document.querySelectorAll('#friendsCheckboxesList input[type="checkbox"]:checked');
             if (checkboxes.length === 0) { alert('Select at least one friend'); return; }
-            
             try {
                 for (const cb of checkboxes) {
                     const friendId = cb.value;
@@ -2683,72 +1833,27 @@
             }
         };
 
-        window.showModal = function() { document.getElementById('modal').classList.add('show'); };
-        window.hideModal = function() { document.getElementById('modal').classList.remove('show'); };
-        window.showLogoutModal = function() { document.getElementById('logoutModal').classList.add('show'); };
-        window.hideLogoutModal = function() { document.getElementById('logoutModal').classList.remove('show'); };
-
-        window.confirmLogout = async function() {
-            try {
-                if (currentUser) await updateDoc(doc(db, 'users', currentUser.uid), { status: 'offline' });
-                await signOut(auth);
-                hideLogoutModal();
-                window.location.href = 'index.html';
-            } catch (error) { console.error('Logout error:', error); alert('Error: ' + error.message); hideLogoutModal(); }
-        };
-
-        window.createChannel = async function() {
-            const name = document.getElementById('channelName').value.trim();
-            if (!name) { alert('Enter channel name'); return; }
-            try {
-                await updateDoc(doc(db, 'users', currentUser.uid), { channels: arrayUnion(name) });
-                await setDoc(doc(db, 'channels', name), { name: name, createdBy: currentUser.uid, members: [currentUser.uid] }, { merge: true });
-                hideModal(); document.getElementById('channelName').value = '';
-                const udoc = await getDoc(doc(db, 'users', currentUser.uid));
-                loadChannels(udoc.data().channels || []);
-            } catch (error) { console.error('Channel create error:', error); alert('Error: ' + error.message); }
-        };
-
+        // Add Friend
         window.addFriend = async function() {
             const nickname = document.getElementById('friendNickname').value.trim();
             if (!nickname) { alert('Please enter a nickname'); return; }
-            
             try {
                 const q = query(collection(db, 'users'), where('name', '==', nickname));
                 const snap = await getDocs(q);
-                
-                if (snap.empty) { 
-                    alert('User with this nickname not found. Check exact spelling (case-sensitive)!'); 
-                    return; 
-                }
-                
+                if (snap.empty) { alert('User with this nickname not found.'); return; }
                 const userDoc = snap.docs[0];
                 const userData = userDoc.data();
-                
-                if (userDoc.id === currentUser.uid) { 
-                    alert('You cannot add yourself!'); 
-                    return; 
-                }
-                
+                if (userDoc.id === currentUser.uid) { alert('You cannot add yourself!'); return; }
                 const currentUserDoc = await getDoc(doc(db, 'users', currentUser.uid));
                 const currentFriends = currentUserDoc.data().friends || [];
-                if (currentFriends.includes(userDoc.id)) {
-                    alert('This user is already your friend!');
-                    return;
-                }
-                
+                if (currentFriends.includes(userDoc.id)) { alert('This user is already your friend!'); return; }
                 const existingRequests = await getDocs(query(
                     collection(db, 'friendRequests'),
                     where('from', '==', currentUser.uid),
                     where('to', '==', userDoc.id),
                     where('status', '==', 'pending')
                 ));
-                
-                if (!existingRequests.empty) {
-                    alert('Friend request already sent!');
-                    return;
-                }
-                
+                if (!existingRequests.empty) { alert('Friend request already sent!'); return; }
                 await addDoc(collection(db, 'friendRequests'), {
                     from: currentUser.uid,
                     fromName: currentUserData?.name || currentUser.displayName,
@@ -2757,7 +1862,6 @@
                     status: 'pending',
                     timestamp: serverTimestamp()
                 });
-                
                 alert(`Friend request sent to ${userData.name}!`);
                 document.getElementById('friendNickname').value = '';
             } catch (error) {
@@ -2766,63 +1870,7 @@
             }
         };
 
-        window.addFriendFromMobile = async function() {
-            const nickname = document.getElementById('mobileFriendNickname').value.trim();
-            if (!nickname) { alert('Please enter a nickname'); return; }
-            
-            try {
-                const q = query(collection(db, 'users'), where('name', '==', nickname));
-                const snap = await getDocs(q);
-                
-                if (snap.empty) { 
-                    alert('User with this nickname not found. Check exact spelling (case-sensitive)!'); 
-                    return; 
-                }
-                
-                const userDoc = snap.docs[0];
-                const userData = userDoc.data();
-                
-                if (userDoc.id === currentUser.uid) { 
-                    alert('You cannot add yourself!'); 
-                    return; 
-                }
-                
-                const currentUserDoc = await getDoc(doc(db, 'users', currentUser.uid));
-                const currentFriends = currentUserDoc.data().friends || [];
-                if (currentFriends.includes(userDoc.id)) {
-                    alert('This user is already your friend!');
-                    return;
-                }
-                
-                const existingRequests = await getDocs(query(
-                    collection(db, 'friendRequests'),
-                    where('from', '==', currentUser.uid),
-                    where('to', '==', userDoc.id),
-                    where('status', '==', 'pending')
-                ));
-                
-                if (!existingRequests.empty) {
-                    alert('Friend request already sent!');
-                    return;
-                }
-                
-                await addDoc(collection(db, 'friendRequests'), {
-                    from: currentUser.uid,
-                    fromName: currentUserData?.name || currentUser.displayName,
-                    to: userDoc.id,
-                    toName: userData.name,
-                    status: 'pending',
-                    timestamp: serverTimestamp()
-                });
-                
-                alert(`Friend request sent to ${userData.name}!`);
-                document.getElementById('mobileFriendNickname').value = '';
-            } catch (error) {
-                console.error('Add friend error:', error);
-                alert('Error: ' + error.message);
-            }
-        };
-
+        // Voice Calls
         window.startCall = async function() {
             if (!currentChat || currentChatType !== 'friend') { alert('Voice calls available only in direct messages'); return; }
             if (isCallActive) { alert('Already in a call!'); return; }
@@ -2832,22 +1880,15 @@
                 localStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video: false });
                 document.getElementById('callModal').classList.add('show');
                 document.getElementById('callName').textContent = currentChatName;
-                
                 const callAvatarEl = document.getElementById('callAvatar');
-                if (currentUserData?.friends) {
-                    const friendDoc = await getDoc(doc(db, 'users', callRecipientId));
-                    if (friendDoc.exists() && friendDoc.data().avatar) {
-                        callAvatarEl.style.backgroundImage = `url(${friendDoc.data().avatar})`;
-                        callAvatarEl.textContent = '';
-                    } else {
-                        callAvatarEl.style.backgroundImage = '';
-                        callAvatarEl.textContent = currentChatName.charAt(0).toUpperCase();
-                    }
+                const friendDoc = await getDoc(doc(db, 'users', callRecipientId));
+                if (friendDoc.exists() && friendDoc.data().avatar) {
+                    callAvatarEl.style.backgroundImage = `url(${friendDoc.data().avatar})`;
+                    callAvatarEl.textContent = '';
                 } else {
                     callAvatarEl.style.backgroundImage = '';
                     callAvatarEl.textContent = currentChatName.charAt(0).toUpperCase();
                 }
-                
                 document.getElementById('callStatus').textContent = 'Calling...';
                 isCallActive = true; isMuted = false;
                 createPeerConnection();
@@ -2875,10 +1916,11 @@
                 }
             };
             peerConnection.ontrack = (event) => {
-                console.log('Received remote track');
-                const audio = document.getElementById('remoteAudio');
-                if (audio) { audio.srcObject = event.streams[0]; audio.play().catch(e => console.error('Audio error:', e)); }
-                else { const newAudio = new Audio(); newAudio.srcObject = event.streams[0]; newAudio.autoplay = true; newAudio.play().catch(e => console.error('Audio error:', e)); document.body.appendChild(newAudio); }
+                const audio = new Audio();
+                audio.srcObject = event.streams[0];
+                audio.autoplay = true;
+                audio.play().catch(e => console.error('Audio error:', e));
+                document.body.appendChild(audio);
                 document.getElementById('callStatus').textContent = 'Connected';
             };
             peerConnection.onconnectionstatechange = () => {
@@ -2892,7 +1934,7 @@
                 if (!docSnap.exists()) return;
                 const callData = docSnap.data();
                 if (callData.status === 'accepted' && callData.answer && !peerConnection.currentRemoteDescription) {
-                    try { await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.answer)); console.log('Remote description set'); }
+                    try { await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.answer)); }
                     catch (e) { console.error('Remote desc error:', e); }
                 }
                 if (callData.status === 'ended' || callData.status === 'rejected' || callData.status === 'missed') {
@@ -2907,7 +1949,7 @@
                     if (change.type === 'added') {
                         const data = change.doc.data();
                         if (data.from !== currentUser.uid && data.candidate && peerConnection) {
-                            try { await peerConnection.addIceCandidate(new RTCIceCandidate({ candidate: data.candidate, sdpMid: data.sdpMid, sdpMLineIndex: data.sdpMLineIndex })); console.log('Added ICE from:', data.from); }
+                            try { await peerConnection.addIceCandidate(new RTCIceCandidate({ candidate: data.candidate, sdpMid: data.sdpMid, sdpMLineIndex: data.sdpMLineIndex })); }
                             catch (e) { console.error('ICE add error:', e); }
                         }
                     }
@@ -2916,7 +1958,6 @@
         }
 
         function listenForCalls() {
-            console.log('Listening for calls:', currentUser.uid);
             const callsRef = collection(db, 'calls');
             incomingCallUnsubscribe = onSnapshot(callsRef, async (snapshot) => {
                 snapshot.forEach(async (docSnap) => {
@@ -2935,7 +1976,6 @@
                         } catch (e) { console.error('Caller name error:', e); }
                         pendingIncomingCall = { docId: docId, callerId: callData.callerId, callerName: callerName, callerAvatar: callerAvatar, offer: callData.offer };
                         document.getElementById('incomingName').textContent = callerName;
-                        
                         const incomingAvatarEl = document.getElementById('incomingAvatar');
                         if (callerAvatar) {
                             incomingAvatarEl.style.backgroundImage = `url(${callerAvatar})`;
@@ -2944,7 +1984,6 @@
                             incomingAvatarEl.style.backgroundImage = '';
                             incomingAvatarEl.textContent = callerName.charAt(0).toUpperCase();
                         }
-                        
                         document.getElementById('incomingCallModal').classList.add('show');
                         setTimeout(() => {
                             if (pendingIncomingCall && pendingIncomingCall.docId === docId) {
@@ -2955,7 +1994,7 @@
                         }, 30000);
                     }
                 });
-            }, (error) => { console.error('Call listen error:', error); });
+            });
         }
 
         window.acceptIncomingCall = async function() {
@@ -2969,7 +2008,6 @@
                 localStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video: false });
                 document.getElementById('callModal').classList.add('show');
                 document.getElementById('callName').textContent = pendingIncomingCall.callerName;
-                
                 const callAvatarEl = document.getElementById('callAvatar');
                 if (pendingIncomingCall.callerAvatar) {
                     callAvatarEl.style.backgroundImage = `url(${pendingIncomingCall.callerAvatar})`;
@@ -2978,7 +2016,6 @@
                     callAvatarEl.style.backgroundImage = '';
                     callAvatarEl.textContent = pendingIncomingCall.callerName.charAt(0).toUpperCase();
                 }
-                
                 document.getElementById('callStatus').textContent = 'Connecting...';
                 isCallActive = true; isMuted = false;
                 createPeerConnection();
@@ -2994,7 +2031,7 @@
                         if (change.type === 'added') {
                             const data = change.doc.data();
                             if (data.from !== currentUser.uid && data.candidate && peerConnection) {
-                                try { await peerConnection.addIceCandidate(new RTCIceCandidate({ candidate: data.candidate, sdpMid: data.sdpMid, sdpMLineIndex: data.sdpMLineIndex })); console.log('Added ICE from:', data.from); }
+                                try { await peerConnection.addIceCandidate(new RTCIceCandidate({ candidate: data.candidate, sdpMid: data.sdpMid, sdpMLineIndex: data.sdpMLineIndex })); }
                                 catch (e) { console.error('ICE error:', e); }
                             }
                         }
@@ -3002,8 +2039,7 @@
                 });
                 callUnsubscribe = onSnapshot(doc(db, 'calls', callId), async (docSnap) => {
                     if (!docSnap.exists()) return;
-                    const callData = docSnap.data();
-                    if (callData.status === 'ended') endCall();
+                    if (docSnap.data().status === 'ended') endCall();
                 });
             } catch (error) { console.error('Accept error:', error); alert('Accept error: ' + error.message); endCall(); }
             pendingIncomingCall = null;
@@ -3024,12 +2060,11 @@
             isMuted = !isMuted;
             localStream.getAudioTracks().forEach(track => { track.enabled = !isMuted; });
             const muteBtn = document.getElementById('muteBtn');
-            if (isMuted) { muteBtn.classList.add('muted'); muteBtn.textContent = ''; }
-            else { muteBtn.classList.remove('muted'); muteBtn.textContent = '🎤'; }
+            if (isMuted) { muteBtn.classList.add('muted'); muteBtn.textContent = '🔇'; }
+            else { muteBtn.classList.remove('muted'); muteBtn.textContent = ''; }
         };
 
         window.endCall = async function() {
-            console.log('Ending call...');
             if (localStream) { localStream.getTracks().forEach(track => track.stop()); localStream = null; }
             if (peerConnection) { peerConnection.close(); peerConnection = null; }
             if (callUnsubscribe) { callUnsubscribe(); callUnsubscribe = null; }
@@ -3049,6 +2084,17 @@
             document.getElementById('callModal').classList.remove('show');
             isCallActive = false; isMuted = false; callRecipientId = null; pendingIncomingCall = null;
         };
+
+        // Initialize
+        initEmojiPicker();
+        listenForCalls();
+
+        // Close emoji picker when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.input-container') && !e.target.closest('.emoji-picker')) {
+                document.getElementById('emojiPicker').classList.remove('show');
+            }
+        });
     </script>
 </body>
 </html>
