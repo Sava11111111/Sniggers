@@ -74,7 +74,6 @@
             background-size: cover;
             background-position: center;
             cursor: pointer;
-            position: relative;
         }
 
         .user-details h3 {
@@ -610,7 +609,6 @@
             color: white;
         }
 
-        /* Call Modal */
         .call-modal {
             display: none;
             position: fixed;
@@ -747,7 +745,6 @@
             color: white;
         }
 
-        /* Screen Share Modal */
         .screen-share-modal {
             display: none;
             position: fixed;
@@ -831,7 +828,6 @@
             font-size: 14px;
         }
 
-        /* Incoming Call */
         .incoming-call {
             display: none;
             position: fixed;
@@ -965,7 +961,7 @@
 
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('chats', this)">💬 Чаты</button>
-                <button class="tab" onclick="switchTab('friends', this)">👥 Друзья</button>
+                <button class="tab" onclick="switchTab('friends', this)"> Друзья</button>
             </div>
 
             <div class="search-box">
@@ -1006,7 +1002,7 @@
                 <div class="chat-header-actions">
                     <button class="header-btn" id="callBtn" onclick="startCall()" disabled>📞</button>
                     <button class="header-btn" id="videoCallBtn" onclick="startVideoCall()" disabled>📹</button>
-                    <button class="header-btn" id="removeFriendBtn" onclick="removeFriend()" style="display:none;" title="Удалить из друзей">🗑️</button>
+                    <button class="header-btn" id="removeFriendBtn" onclick="removeFriend()" style="display:none;" title="Удалить из друзей">️</button>
                 </div>
             </div>
 
@@ -1033,7 +1029,6 @@
         </main>
     </div>
 
-    <!-- Modals -->
     <div class="modal" id="profileModal">
         <div class="modal-content">
             <h3>Профиль</h3>
@@ -1083,7 +1078,6 @@
         </div>
     </div>
 
-    <!-- Call Modal -->
     <div class="call-modal" id="callModal">
         <div class="call-content">
             <div class="call-videos" id="callVideos" style="display:none;">
@@ -1109,7 +1103,6 @@
         </div>
     </div>
 
-    <!-- Screen Share Modal -->
     <div class="screen-share-modal" id="screenShareModal">
         <div class="screen-share-content">
             <div class="screen-share-header">
@@ -1129,7 +1122,6 @@
         </div>
     </div>
 
-    <!-- Incoming Call -->
     <div class="incoming-call" id="incomingCall">
         <div class="incoming-content">
             <div class="incoming-avatar" id="incomingAvatar">?</div>
@@ -1188,6 +1180,7 @@
         let pendingIncomingCall = null;
         let currentUserData = null;
         let localScreenStream = null;
+        let videoSender = null;
 
         const rtcConfig = {
             iceServers: [
@@ -1207,7 +1200,7 @@
             height: { ideal: 720 }
         };
 
-        const emojis = ['😊', '', '❤️', '🔥', '👍', '', '😢', '🤔', '', '🥳', '', '✨', '🙌', '', '😭', '🌟', '🤗', '', '👏', '💕', '', '⭐', '🎯', '', '', '💡', '🍕', '🌺', '', '🎮', '', '💻'];
+        const emojis = ['😊', '', '❤️', '🔥', '👍', '', '😢', '🤔', '', '🥳', '', '✨', '', '', '😭', '🌟', '🤗', '', '👏', '💕', '', '⭐', '', '', '', '💡', '🍕', '🌺', '', '', '', '💻'];
 
         function initEmojiPicker() {
             const picker = document.getElementById('emojiPicker');
@@ -1696,6 +1689,11 @@
                 createPeerConnection();
                 localStream.getTracks().forEach(track => { peerConnection.addTrack(track, localStream); });
                 
+                // Сохраняем video sender для замены на screen share
+                if (type === 'video') {
+                    videoSender = peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+                }
+                
                 const offer = await peerConnection.createOffer();
                 await peerConnection.setLocalDescription(offer);
                 await new Promise(resolve => setTimeout(resolve, 1000));
@@ -1742,20 +1740,25 @@
                 const stream = event.streams[0];
                 
                 if (event.track.kind === 'video') {
-                    const remoteVideo = document.getElementById('remoteVideo');
-                    if (remoteVideo) {
-                        remoteVideo.srcObject = stream;
-                    }
+                    // Проверяем, это screen share или camera
+                    const isScreenShare = event.track.label && event.track.label.includes('screen');
                     
-                    // Check if it's screen share
-                    if (event.track.label && event.track.label.includes('screen')) {
+                    if (isScreenShare) {
+                        // Показываем screen share
                         const remoteScreenVideo = document.getElementById('remoteScreenVideo');
                         if (remoteScreenVideo) {
                             remoteScreenVideo.srcObject = stream;
                             document.getElementById('screenShareModal').classList.add('show');
                         }
+                    } else {
+                        // Обычное видео
+                        const remoteVideo = document.getElementById('remoteVideo');
+                        if (remoteVideo) {
+                            remoteVideo.srcObject = stream;
+                        }
                     }
                 } else {
+                    // Аудио
                     const audio = new Audio();
                     audio.srcObject = stream;
                     audio.autoplay = true;
@@ -1927,6 +1930,11 @@
                 createPeerConnection();
                 localStream.getTracks().forEach(track => { peerConnection.addTrack(track, localStream); });
                 
+                // Сохраняем video sender
+                if (callType === 'video') {
+                    videoSender = peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+                }
+                
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
@@ -2004,6 +2012,7 @@
             
             try {
                 if (!isScreenSharing) {
+                    // Запрашиваем демонстрацию экрана
                     localScreenStream = await navigator.mediaDevices.getDisplayMedia({
                         video: { cursor: "always" },
                         audio: false
@@ -2011,15 +2020,22 @@
                     
                     const screenTrack = localScreenStream.getVideoTracks()[0];
                     
-                    // Show local screen share
+                    // Показываем локальный экран
                     const localScreenVideo = document.getElementById('localScreenVideo');
                     if (localScreenVideo) {
                         localScreenVideo.srcObject = localScreenStream;
                     }
                     
-                    // Add screen track to peer connection
-                    peerConnection.addTrack(screenTrack, localScreenStream);
+                    // ВАЖНО: Заменяем video track в peer connection
+                    if (videoSender) {
+                        await videoSender.replaceTrack(screenTrack);
+                    } else {
+                        // Если videoSender нет (аудиозвонок), добавляем track
+                        peerConnection.addTrack(screenTrack, localScreenStream);
+                        videoSender = peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+                    }
                     
+                    // Автоматически останавливаем когда пользователь закрывает окно выбора
                     screenTrack.onended = () => {
                         stopScreenShare();
                     };
@@ -2028,7 +2044,7 @@
                     document.getElementById('screenBtn').classList.add('active');
                     document.getElementById('screenBtn').textContent = '⏹️';
                     
-                    // Show screen share modal
+                    // Показываем окно демонстрации
                     document.getElementById('screenShareModal').classList.add('show');
                     
                 } else {
@@ -2044,6 +2060,14 @@
             if (localScreenStream) {
                 localScreenStream.getTracks().forEach(track => track.stop());
                 localScreenStream = null;
+            }
+            
+            // Возвращаем camera track
+            if (videoSender && localStream) {
+                const cameraTrack = localStream.getVideoTracks()[0];
+                if (cameraTrack) {
+                    videoSender.replaceTrack(cameraTrack);
+                }
             }
             
             isScreenSharing = false;
@@ -2098,6 +2122,7 @@
             isScreenSharing = false;
             callRecipientId = null;
             pendingIncomingCall = null;
+            videoSender = null;
         };
 
         initEmojiPicker();
