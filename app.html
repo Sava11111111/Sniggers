@@ -239,6 +239,7 @@
             cursor: pointer;
             transition: all 0.2s;
             margin-bottom: 4px;
+            position: relative;
         }
 
         .chat-item:hover {
@@ -282,6 +283,28 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        .remove-friend-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: none;
+            background: var(--danger);
+            color: white;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .chat-item:hover .remove-friend-btn {
+            display: flex;
         }
 
         /* Main Chat Area */
@@ -431,39 +454,6 @@
 
         .message.own .message-time {
             color: rgba(255,255,255,0.7);
-        }
-
-        .message-reactions {
-            display: flex;
-            gap: 6px;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-
-        .reaction {
-            padding: 4px 8px;
-            background: var(--bg-hover);
-            border-radius: 8px;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.2s;
-        }
-
-        .reaction:hover {
-            background: var(--accent-purple);
-            transform: scale(1.1);
-        }
-
-        .reaction.active {
-            background: var(--accent-purple);
-        }
-
-        .reaction-count {
-            font-size: 11px;
-            color: var(--text-secondary);
         }
 
         .input-area {
@@ -669,6 +659,40 @@
         .call-content {
             text-align: center;
             padding: 40px;
+            max-width: 800px;
+            width: 90%;
+        }
+
+        .call-videos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .video-container {
+            position: relative;
+            background: var(--bg-tertiary);
+            border-radius: 16px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-label {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(0,0,0,0.7);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
         .call-avatar {
@@ -865,6 +889,7 @@
         @media (max-width: 900px) {
             .app { grid-template-columns: 1fr; }
             .sidebar { display: none; }
+            .call-videos { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -930,13 +955,13 @@
                 <div class="chat-header-actions">
                     <button class="header-btn" id="callBtn" onclick="startCall()" disabled>📞</button>
                     <button class="header-btn" id="videoCallBtn" onclick="startVideoCall()" disabled>📹</button>
-                    <button class="header-btn" onclick="showChatSettings()">⚙️</button>
+                    <button class="header-btn" id="removeFriendBtn" onclick="removeFriend()" style="display:none;" title="Удалить из друзей">🗑️</button>
                 </div>
             </div>
 
             <div class="messages-area" id="messages">
                 <div style="text-align: center; color: var(--text-tertiary); padding: 60px 20px;">
-                    <div style="font-size: 64px; margin-bottom: 16px; opacity: 0.5;">💬</div>
+                    <div style="font-size: 64px; margin-bottom: 16px; opacity: 0.5;"></div>
                     <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Добро пожаловать в Sniggers</div>
                     <div style="font-size: 14px;">Выберите канал или друга для начала общения</div>
                 </div>
@@ -1010,11 +1035,23 @@
     <!-- Call Modal -->
     <div class="call-modal" id="callModal">
         <div class="call-content">
-            <div class="call-avatar" id="callAvatar">?</div>
-            <div class="call-status" id="callStatus">Звонок...</div>
-            <div class="call-name" id="callName">Пользователь</div>
+            <div class="call-videos" id="callVideos" style="display:none;">
+                <div class="video-container">
+                    <video id="localVideo" autoplay muted playsinline></video>
+                    <div class="video-label">Вы</div>
+                </div>
+                <div class="video-container">
+                    <video id="remoteVideo" autoplay playsinline></video>
+                    <div class="video-label">Собеседник</div>
+                </div>
+            </div>
+            <div id="callInfo">
+                <div class="call-avatar" id="callAvatar">?</div>
+                <div class="call-status" id="callStatus">Звонок...</div>
+                <div class="call-name" id="callName">Пользователь</div>
+            </div>
             <div class="call-controls">
-                <button class="call-btn btn-mute" id="muteBtn" onclick="toggleMute()">🎤</button>
+                <button class="call-btn btn-mute" id="muteBtn" onclick="toggleMute()"></button>
                 <button class="call-btn btn-screen" id="screenBtn" onclick="toggleScreenShare()">🖥️</button>
                 <button class="call-btn btn-end" onclick="endCall()">📞</button>
             </div>
@@ -1027,7 +1064,7 @@
             <div class="incoming-avatar" id="incomingAvatar">?</div>
             <div class="incoming-label">Входящий звонок</div>
             <div class="incoming-name" id="incomingName">Пользователь</div>
-            <div class="incoming-type"> Голосовой вызов</div>
+            <div class="incoming-type" id="incomingType">📞 Голосовой вызов</div>
             <div class="incoming-controls">
                 <div class="incoming-btn" onclick="declineIncomingCall()">
                     <button class="incoming-btn-circle btn-decline">✕</button>
@@ -1044,7 +1081,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, doc, getDoc, updateDoc, arrayUnion, onSnapshot, collection, addDoc, query, orderBy, serverTimestamp, setDoc, where, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove, onSnapshot, collection, addDoc, query, orderBy, serverTimestamp, setDoc, where, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyBSAzrVn3G9_14VtQZ9TkffdNlhwPe0HkE",
@@ -1079,6 +1116,8 @@
         let callId = null;
         let pendingIncomingCall = null;
         let currentUserData = null;
+        let remoteScreenStream = null;
+        let localScreenStream = null;
 
         const rtcConfig = {
             iceServers: [
@@ -1098,8 +1137,12 @@
             height: { ideal: 720 }
         };
 
+        // Ringtone
+        const ringtone = new Audio('data:audio/wav;base64,UklGRnoOAAAABAAARgAAABAAACAgAgBaQFgAWkBYAFhAVwBYAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAVgBWAFYAV......');
+        ringtone.loop = true;
+
         // Emoji Picker
-        const emojis = ['😊', '', '❤️', '🔥', '👍', '🎉', '😢', '🤔', '', '🥳', '💯', '✨', '🙌', '', '😭', '🌟', '🤗', '🙏', '👏', '💕', '', '⭐', '🎯', '💎', '🚀', '💡', '🍕', '🌺', '☕', '🎮', '', '💻'];
+        const emojis = ['😊', '', '❤️', '🔥', '👍', '🎉', '😢', '🤔', '', '🥳', '', '✨', '🙌', '', '😭', '🌟', '🤗', '🙏', '👏', '💕', '', '⭐', '🎯', '', '🚀', '💡', '🍕', '🌺', '', '🎮', '', '💻'];
 
         function initEmojiPicker() {
             const picker = document.getElementById('emojiPicker');
@@ -1211,8 +1254,6 @@
                     const uid = docSnap.id;
                     
                     if (uid === currentUser.uid) return;
-                    
-                    // Update online status in UI if needed
                 });
             });
         }
@@ -1260,6 +1301,7 @@
 
                 listenToUsers();
                 listenToFriendRequests();
+                listenForCalls();
 
             } catch (error) {
                 console.error("Data load error:", error);
@@ -1303,13 +1345,29 @@
                                 <div class="chat-name">${fdata.name}</div>
                                 <div class="chat-preview">Личное сообщение</div>
                             </div>
+                            <button class="remove-friend-btn" onclick="removeFriendFromList('${fid}', event)" title="Удалить из друзей">×</button>
                         `;
-                        div.onclick = function() { openChat(fid, 'friend', fdata.name, this); };
+                        div.onclick = function(e) { 
+                            if (!e.target.classList.contains('remove-friend-btn')) {
+                                openChat(fid, 'friend', fdata.name, this);
+                            }
+                        };
                         container.appendChild(div);
                     }
                 } catch (error) { console.error('Friend load error:', error); }
             }
         }
+
+        window.removeFriendFromList = async function(friendId, event) {
+            event.stopPropagation();
+            if (confirm('Удалить этого друга?')) {
+                await updateDoc(doc(db, 'users', currentUser.uid), { friends: arrayRemove(friendId) });
+                await updateDoc(doc(db, 'users', friendId), { friends: arrayRemove(currentUser.uid) });
+                alert('Друг удален');
+                const udoc = await getDoc(doc(db, 'users', currentUser.uid));
+                loadFriends(udoc.data().friends || []);
+            }
+        };
 
         window.openChat = async function(id, type, name = null, element = null) {
             currentChat = id; currentChatType = type; currentChatName = name;
@@ -1325,6 +1383,7 @@
                 headerAvatar.style.background = 'var(--accent-gradient)';
                 document.getElementById('callBtn').disabled = true;
                 document.getElementById('videoCallBtn').disabled = true;
+                document.getElementById('removeFriendBtn').style.display = 'none';
             } else {
                 document.getElementById('chatName').textContent = name;
                 document.getElementById('chatStatus').textContent = 'В сети';
@@ -1338,8 +1397,29 @@
                 }
                 document.getElementById('callBtn').disabled = false;
                 document.getElementById('videoCallBtn').disabled = false;
+                document.getElementById('removeFriendBtn').style.display = 'flex';
             }
             loadMessages(id, type);
+        };
+
+        window.removeFriend = async function() {
+            if (!currentChat || currentChatType !== 'friend') return;
+            if (confirm(`Удалить ${currentChatName} из друзей?`)) {
+                await updateDoc(doc(db, 'users', currentUser.uid), { friends: arrayRemove(currentChat) });
+                await updateDoc(doc(db, 'users', currentChat), { friends: arrayRemove(currentUser.uid) });
+                alert('Друг удален');
+                document.getElementById('chatName').textContent = 'Выберите чат';
+                document.getElementById('chatStatus').textContent = 'Нет сообщений';
+                document.getElementById('messages').innerHTML = `
+                    <div style="text-align: center; color: var(--text-tertiary); padding: 60px 20px;">
+                        <div style="font-size: 64px; margin-bottom: 16px; opacity: 0.5;">💬</div>
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Добро пожаловать в Sniggers</div>
+                        <div style="font-size: 14px;">Выберите канал или друга для начала общения</div>
+                    </div>
+                `;
+                const udoc = await getDoc(doc(db, 'users', currentUser.uid));
+                loadFriends(udoc.data().friends || []);
+            }
         };
 
         function loadMessages(chatId, type) {
@@ -1370,10 +1450,6 @@
                             <div class="message-author">${m.senderName}</div>
                             <div class="message-text">${m.text}</div>
                             <div class="message-time">${time}</div>
-                            <div class="message-reactions">
-                                <span class="reaction" onclick="addReaction('${d.id}', '❤️')">❤️ <span class="reaction-count">0</span></span>
-                                <span class="reaction" onclick="addReaction('${d.id}', '')">👍 <span class="reaction-count">0</span></span>
-                            </div>
                         </div>
                     `;
                     container.appendChild(msg);
@@ -1381,11 +1457,6 @@
                 container.scrollTop = container.scrollHeight;
             });
         }
-
-        window.addReaction = async function(messageId, emoji) {
-            // Implement reaction logic here
-            console.log('Reaction:', emoji, 'to message:', messageId);
-        };
 
         window.sendMsg = async function() {
             const input = document.getElementById('msgInput');
@@ -1398,8 +1469,7 @@
                     senderId: currentUser.uid,
                     senderName: currentUserData?.name || currentUser.displayName || 'User',
                     senderAvatar: currentUserData?.avatar || null,
-                    timestamp: serverTimestamp(),
-                    reactions: {}
+                    timestamp: serverTimestamp()
                 });
                 input.value = '';
             } catch (error) { console.error('Send error:', error); }
@@ -1566,6 +1636,16 @@
                 document.getElementById('callName').textContent = currentChatName;
                 document.getElementById('callStatus').textContent = type === 'video' ? 'Видеозвонок...' : 'Звонок...';
                 
+                // Show videos for video calls
+                if (type === 'video') {
+                    document.getElementById('callVideos').style.display = 'grid';
+                    document.getElementById('callInfo').style.display = 'none';
+                    document.getElementById('localVideo').srcObject = localStream;
+                } else {
+                    document.getElementById('callVideos').style.display = 'none';
+                    document.getElementById('callInfo').style.display = 'block';
+                }
+                
                 const callAvatarEl = document.getElementById('callAvatar');
                 const friendDoc = await getDoc(doc(db, 'users', callRecipientId));
                 if (friendDoc.exists() && friendDoc.data().avatar) {
@@ -1625,18 +1705,30 @@
             };
             
             peerConnection.ontrack = (event) => {
-                const audio = new Audio();
-                audio.srcObject = event.streams[0];
-                audio.autoplay = true;
-                audio.play().catch(e => console.error('Audio error:', e));
-                document.body.appendChild(audio);
+                console.log('Received track:', event.track.kind);
+                if (event.track.kind === 'video') {
+                    const remoteVideo = document.getElementById('remoteVideo');
+                    if (remoteVideo) {
+                        remoteVideo.srcObject = event.streams[0];
+                    }
+                } else {
+                    const audio = new Audio();
+                    audio.srcObject = event.streams[0];
+                    audio.autoplay = true;
+                    audio.play().catch(e => console.error('Audio error:', e));
+                }
                 document.getElementById('callStatus').textContent = 'Подключено';
             };
             
             peerConnection.onconnectionstatechange = () => {
+                console.log('Connection state:', peerConnection.connectionState);
                 if (peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'failed') {
                     endCall();
                 }
+            };
+            
+            peerConnection.ondatachannel = (event) => {
+                console.log('Data channel received');
             };
         }
 
@@ -1729,6 +1821,9 @@
                             incomingAvatarEl.textContent = callerName.charAt(0).toUpperCase();
                         }
                         
+                        // Play ringtone
+                        ringtone.play().catch(e => console.log('Ringtone play error:', e));
+                        
                         document.getElementById('incomingCall').classList.add('show');
                         
                         setTimeout(() => {
@@ -1755,6 +1850,10 @@
             const callerId = pendingIncomingCall.callerId;
             const callType = pendingIncomingCall.callType;
             
+            // Stop ringtone
+            ringtone.pause();
+            ringtone.currentTime = 0;
+            
             hideIncomingCall();
             callId = callDocId;
             callRecipientId = callerId;
@@ -1769,6 +1868,16 @@
                 document.getElementById('callModal').classList.add('show');
                 document.getElementById('callName').textContent = pendingIncomingCall.callerName;
                 document.getElementById('callStatus').textContent = 'Подключение...';
+                
+                // Show videos for video calls
+                if (callType === 'video') {
+                    document.getElementById('callVideos').style.display = 'grid';
+                    document.getElementById('callInfo').style.display = 'none';
+                    document.getElementById('localVideo').srcObject = localStream;
+                } else {
+                    document.getElementById('callVideos').style.display = 'none';
+                    document.getElementById('callInfo').style.display = 'block';
+                }
                 
                 const callAvatarEl = document.getElementById('callAvatar');
                 if (pendingIncomingCall.callerAvatar) {
@@ -1830,6 +1939,11 @@
         window.declineIncomingCall = async function() {
             if (!pendingIncomingCall) return;
             const callDocId = pendingIncomingCall.docId;
+            
+            // Stop ringtone
+            ringtone.pause();
+            ringtone.currentTime = 0;
+            
             try {
                 await updateDoc(doc(db, 'calls', callDocId), { status: 'rejected' }).catch(() => {});
                 setTimeout(() => {
@@ -1842,6 +1956,8 @@
 
         function hideIncomingCall() {
             document.getElementById('incomingCall').classList.remove('show');
+            ringtone.pause();
+            ringtone.currentTime = 0;
         }
 
         window.toggleMute = function() {
@@ -1869,7 +1985,13 @@
                         audio: false
                     });
                     
+                    localScreenStream = screenStream;
                     const screenTrack = screenStream.getVideoTracks()[0];
+                    
+                    // Show local screen share
+                    if (document.getElementById('localVideo')) {
+                        document.getElementById('localVideo').srcObject = screenStream;
+                    }
                     
                     // Replace video track with screen track
                     const sender = peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
@@ -1885,7 +2007,7 @@
                     
                     isScreenSharing = true;
                     document.getElementById('screenBtn').classList.add('active');
-                    document.getElementById('screenBtn').textContent = '🖥️';
+                    document.getElementById('screenBtn').textContent = '⏹️';
                     
                 } else {
                     stopScreenShare();
@@ -1904,6 +2026,14 @@
             
             if (sender && videoTrack) {
                 sender.replaceTrack(videoTrack);
+                if (document.getElementById('localVideo')) {
+                    document.getElementById('localVideo').srcObject = localStream;
+                }
+            }
+            
+            if (localScreenStream) {
+                localScreenStream.getTracks().forEach(track => track.stop());
+                localScreenStream = null;
             }
             
             isScreenSharing = false;
@@ -1915,6 +2045,11 @@
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;
+            }
+            
+            if (localScreenStream) {
+                localScreenStream.getTracks().forEach(track => track.stop());
+                localScreenStream = null;
             }
             
             if (peerConnection) {
@@ -1944,6 +2079,8 @@
             }
             
             document.getElementById('callModal').classList.remove('show');
+            document.getElementById('callVideos').style.display = 'none';
+            document.getElementById('callInfo').style.display = 'block';
             isCallActive = false;
             isMuted = false;
             isScreenSharing = false;
@@ -1953,7 +2090,6 @@
 
         // Initialize
         initEmojiPicker();
-        listenForCalls();
 
         // Close emoji picker when clicking outside
         document.addEventListener('click', (e) => {
